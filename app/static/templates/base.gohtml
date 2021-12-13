@@ -1,0 +1,23 @@
+{{ define "base" }}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>social</title>
+    {{ template "head" . }}
+    <link rel="stylesheet" href="/css/app.css">
+  </head>
+  <body>
+    <div id="body-div">
+      <div class="section-div">
+        <h3>social</h3>
+        <a href="/">home</a>
+      </div>
+      {{ template "main" . }}
+      <div id="footer">
+        <a target="_blank" href="https://github.com/m-butterfield/social">view source code</a>
+        <p>© {{ .Year }} Social</p>
+      </div>
+    </div>
+  </body>
+</html>
+{{ end }}
