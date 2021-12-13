@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/m-butterfield/social/app/static"
 	"log"
 	"net"
 	"net/http"
@@ -11,10 +12,10 @@ import (
 func Run(port string) error {
 	r := gin.Default()
 
-	httpFS := http.FS(fs)
-	fileServer := http.FileServer(httpFS)
-	addStaticHandler(r, "/css", httpFS, fileServer)
-	addStaticHandler(r, "/js", httpFS, fileServer)
+	staticFS := http.FS(static.FS{})
+	fileServer := http.FileServer(staticFS)
+	addStaticHandler(r, "/css", staticFS, fileServer)
+	addStaticHandler(r, "/js", staticFS, fileServer)
 
 	r.GET("/", index)
 

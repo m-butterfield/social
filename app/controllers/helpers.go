@@ -14,12 +14,11 @@ var (
 	baseTemplatePaths = []string{
 		templatePath + "base.gohtml",
 	}
-	fs static.FS
 )
 
-func templateRenderer(templateName string, data interface{}) (render.Render, error) {
+func templateRender(templateName string, data interface{}) (render.Render, error) {
 	path := append([]string{templatePath + templateName + ".gohtml"}, baseTemplatePaths...)
-	tmpl, err := template.ParseFS(fs, path...)
+	tmpl, err := template.ParseFS(static.FS{}, path...)
 	if err != nil {
 		return nil, err
 	}

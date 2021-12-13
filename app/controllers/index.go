@@ -6,7 +6,7 @@ import (
 )
 
 func index(c *gin.Context) {
-	body, err := templateRenderer("index", nil)
+	body, err := templateRender("index", nil)
 	if err != nil {
 		log.Fatal(err)
 		return
