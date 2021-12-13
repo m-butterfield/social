@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func testIndex(t *testing.T) {
+func TestIndex(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
 	testRouter.ServeHTTP(w, req)
