@@ -1,9 +1,14 @@
 package controllers
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 	"github.com/m-butterfield/social/app/static"
 	"html/template"
+	"log"
+	"net"
+	"net/http"
+	"path"
 )
 
 const (
@@ -16,9 +21,13 @@ var (
 	}
 )
 
-func templateRender(templateName string, data interface{}) (render.Render, error) {
-	path := append([]string{templatePath + templateName + ".gohtml"}, baseTemplatePaths...)
-	tmpl, err := template.ParseFS(static.FS{}, path...)
+func Run(port string) error {
+	return router().Run(net.JoinHostPort("", port))
+}
+
+func templateRender(name string, data interface{}) (render.Render, error) {
+	paths := append([]string{templatePath + name + ".gohtml"}, baseTemplatePaths...)
+	tmpl, err := template.ParseFS(static.FS{}, paths...)
 	if err != nil {
 		return nil, err
 	}
@@ -26,4 +35,21 @@ func templateRender(templateName string, data interface{}) (render.Render, error
 		Template: tmpl,
 		Data:     data,
 	}, nil
+}
+
+func addStaticHandler(r *gin.Engine, prefix string, fs http.FileSystem, fileServer http.Handler) {
+	handler := func(c *gin.Context) {
+		f, err := fs.Open(c.Request.URL.Path)
+		if err != nil {
+			c.Writer.WriteHeader(http.StatusNotFound)
+			return
+		}
+		if err = f.Close(); err != nil {
+			log.Printf("Error closing file %s\n", err)
+		}
+		fileServer.ServeHTTP(c.Writer, c.Request)
+	}
+	pattern := path.Join(prefix, "/*filepath")
+	r.GET(pattern, handler)
+	r.HEAD(pattern, handler)
 }
