@@ -13,7 +13,7 @@ db:
 fmt:
 	go fmt ./...
 	npx eslint app/static/js/ --fix
-	terraform fmt infra/
+	cd infra/ && terraform fmt && cd -
 
 run-server:
 	DB_SOCKET="host=localhost dbname=social" USE_LOCAL_FS=true go run cmd/server/main.go

@@ -13,3 +13,10 @@ provider "google" {
   project = "mattbutterfield"
   region  = "us-central1"
 }
+
+terraform {
+  backend "gcs" {
+    bucket  = "social-tf-state-prod"
+    prefix  = "terraform/state"
+  }
+}
