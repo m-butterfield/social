@@ -1,7 +1,5 @@
-gobuild := go build
-
 build:
-	$(gobuild) -o bin/server cmd/server/main.go
+	go build -o bin/server cmd/server/main.go
 
 docker-build:
 	docker-compose build
@@ -15,6 +13,7 @@ db:
 fmt:
 	go fmt ./...
 	npx eslint app/static/js/ --fix
+	terraform fmt infra/
 
 run-server:
 	DB_SOCKET="host=localhost dbname=social" USE_LOCAL_FS=true go run cmd/server/main.go
@@ -27,3 +26,4 @@ update-deps:
 	go get -u ./...
 	go mod tidy
 	npm upgrade
+	cd infra && terraform init -upgrade && cd -
