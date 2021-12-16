@@ -11,7 +11,7 @@ provider "google" {
   credentials = file("/var/terraform/mattbutterfield.json")
 
   project = "mattbutterfield"
-  region  = "us-central1"
+  region  = var.default_region
 }
 
 terraform {
