@@ -15,6 +15,7 @@ func router() *gin.Engine {
 	addStaticHandler(r, "/js", staticFS, fileServer)
 
 	r.GET("/", index)
+	r.GET("/favicon.ico", favicon)
 
 	return r
 }

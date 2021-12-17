@@ -3,12 +3,14 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
+	"github.com/m-butterfield/social/app/lib"
 	"github.com/m-butterfield/social/app/static"
 	"html/template"
 	"log"
 	"net"
 	"net/http"
 	"path"
+	"time"
 )
 
 const (
@@ -52,4 +54,16 @@ func addStaticHandler(r *gin.Engine, prefix string, fs http.FileSystem, fileServ
 	pattern := path.Join(prefix, "/*filepath")
 	r.GET(pattern, handler)
 	r.HEAD(pattern, handler)
+}
+
+type basePage struct {
+	ImagesBaseURL string
+	Year string
+}
+
+func makeBasePage() *basePage {
+	return &basePage{
+		ImagesBaseURL: lib.ImagesBaseURL,
+		Year:          time.Now().Format("2006"),
+	}
 }

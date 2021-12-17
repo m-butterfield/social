@@ -9,6 +9,10 @@ resource "google_cloud_run_service" "social" {
         ports {
           container_port = 8000
         }
+        env {
+          name = "GIN_MODE"
+          value = "release"
+        }
       }
     }
   }
