@@ -1,5 +1,10 @@
+cloudrunbasecommand := gcloud run deploy --project=mattbutterfield --region=us-central1 --platform=managed
+
 build:
 	go build -o bin/server cmd/server/main.go
+
+deploy: docker-build docker-push
+	$(cloudrunbasecommand) --image=gcr.io/mattbutterfield/social social
 
 docker-build:
 	docker-compose build
