@@ -58,7 +58,7 @@ func addStaticHandler(r *gin.Engine, prefix string, fs http.FileSystem, fileServ
 
 type basePage struct {
 	ImagesBaseURL string
-	Year string
+	Year          string
 }
 
 func makeBasePage() *basePage {
