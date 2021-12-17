@@ -2,7 +2,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "3.5.0"
+      version = "4.4.0"
     }
   }
 }
@@ -16,7 +16,7 @@ provider "google" {
 
 terraform {
   backend "gcs" {
-    bucket  = "social-tf-state-prod"
-    prefix  = "terraform/state"
+    bucket = "social-tf-state-prod"
+    prefix = "terraform/state"
   }
 }
