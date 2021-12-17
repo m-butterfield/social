@@ -7,10 +7,10 @@ import (
 	"testing"
 )
 
-func TestFavicon(t *testing.T) {
+func TestLoginUser(t *testing.T) {
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/favicon.ico", nil)
+	req, _ := http.NewRequest("POST", "/login", nil)
 	testRouter().ServeHTTP(w, req)
 
-	assert.Equal(t, 301, w.Code)
+	assert.Equal(t, 302, w.Code)
 }

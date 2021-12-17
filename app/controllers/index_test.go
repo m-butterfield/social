@@ -10,7 +10,7 @@ import (
 func TestIndex(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
-	testRouter.ServeHTTP(w, req)
+	testRouter().ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
 }

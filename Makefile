@@ -1,4 +1,9 @@
-cloudrunbasecommand := gcloud run deploy --project=mattbutterfield --region=us-central1 --platform=managed
+cloudrunbasecommand := gcloud run deploy --region=us-central1
+
+terraformbasecommand := cd infra && terraform
+terraformvarsarg := -var-file=secrets.tfvars
+
+export DB_SOCKET=host=localhost dbname=social
 
 build:
 	go build -o bin/server cmd/server/main.go
@@ -12,20 +17,30 @@ docker-build:
 docker-push:
 	docker-compose push
 
-db:
+reset-db:
+	dropdb --if-exists social
 	createdb social
+	go run cmd/migrate/main.go
 
 fmt:
 	go fmt ./...
 	npx eslint app/static/js/ --fix
-	cd infra/ && terraform fmt && cd -
+	cd infra/ && terraform fmt
 
-run-server:
-	DB_SOCKET="host=localhost dbname=social" USE_LOCAL_FS=true go run cmd/server/main.go
+run: export USE_LOCAL_FS=true
+run:
+	go run cmd/server/main.go
 
+test: export DB_SOCKET=host=localhost dbname=social_test
 test:
-	dropdb --if-exists social_test && createdb social_test && psql -d social_test -f schema.sql
-	DB_SOCKET="host=localhost dbname=social_test" go test -v ./app/...
+	dropdb --if-exists social_test && createdb social_test && go run cmd/migrate/main.go
+	go test -v ./app/...
+
+tf-plan:
+	$(terraformbasecommand) plan $(terraformvarsarg)
+
+tf-apply:
+	$(terraformbasecommand) apply $(terraformvarsarg)
 
 update-deps:
 	go get -u ./...
