@@ -3,23 +3,25 @@ package data
 import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"os"
 )
 
 func Connect() (Store, error) {
-	db, err := getDB()
+	s, err := getDS()
 	if err != nil {
 		return nil, err
 	}
-	return &ds{db: db}, nil
+	return s, nil
 }
 
 func Migrate() error {
-	db, err := getDB()
+	s, err := getDS()
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(
+	err = s.db.AutoMigrate(
+		&AccessToken{},
 		&User{},
 	)
 	if err != nil {
@@ -28,17 +30,21 @@ func Migrate() error {
 	return nil
 }
 
-func getDB() (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(os.Getenv("DB_SOCKET")), &gorm.Config{})
+func getDS() (*ds, error) {
+	db, err := gorm.Open(postgres.Open(os.Getenv("DB_SOCKET")), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
 	if err != nil {
 		return nil, err
 	}
-	return db, nil
+	return &ds{db: db}, nil
 }
 
 type Store interface {
 	CreateUser(*User) error
 	GetUser(string) (*User, error)
+	CreateAccessToken(*User) (*AccessToken, error)
+	GetAccessToken(string) (*AccessToken, error)
 }
 
 type ds struct {

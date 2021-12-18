@@ -24,8 +24,7 @@ var (
 
 func Run(port string) error {
 	var err error
-	ds, err = data.Connect()
-	if err != nil {
+	if ds, err = data.Connect(); err != nil {
 		return err
 	}
 	return router().Run(net.JoinHostPort("", port))
