@@ -14,6 +14,8 @@ func router() *gin.Engine {
 		log.Fatal(err)
 	}
 
+	r.Use(auth)
+
 	staticFS := http.FS(static.FS{})
 	fileServer := http.FileServer(staticFS)
 	addStaticHandler(r, "/css", fileServer)
