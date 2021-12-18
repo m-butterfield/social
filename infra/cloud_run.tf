@@ -13,13 +13,27 @@ resource "google_cloud_run_service" "social" {
           name  = "GIN_MODE"
           value = "release"
         }
+        env {
+          name = "DB_SOCKET"
+          value_from {
+            secret_key_ref {
+              name = google_secret_manager_secret.social_db_socket.secret_id
+              key  = "1"
+            }
+          }
+        }
+      }
+      service_account_name = google_service_account.social_cloud_run.email
+    }
+    metadata {
+      annotations = {
+        "run.googleapis.com/cloudsql-instances" = google_sql_database_instance.mattbutterfield.connection_name
+        "autoscaling.knative.dev/maxScale"      = "100"
+        "client.knative.dev/user-image"         = "gcr.io/mattbutterfield/social"
+        "run.googleapis.com/client-name"        = "gcloud"
+        "run.googleapis.com/client-version"     = "367.0.0"
       }
     }
-  }
-
-  traffic {
-    percent         = 100
-    latest_revision = true
   }
 }
 

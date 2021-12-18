@@ -3,13 +3,11 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
+	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/lib"
 	"github.com/m-butterfield/social/app/static"
 	"html/template"
-	"log"
 	"net"
-	"net/http"
-	"path"
 	"time"
 )
 
@@ -21,9 +19,15 @@ var (
 	baseTemplatePaths = []string{
 		templatePath + "base.gohtml",
 	}
+	ds data.Store
 )
 
 func Run(port string) error {
+	var err error
+	ds, err = data.Connect()
+	if err != nil {
+		return err
+	}
 	return router().Run(net.JoinHostPort("", port))
 }
 
@@ -39,30 +43,16 @@ func templateRender(name string, data interface{}) (render.Render, error) {
 	}, nil
 }
 
-func addStaticHandler(r *gin.Engine, prefix string, fs http.FileSystem, fileServer http.Handler) {
-	handler := func(c *gin.Context) {
-		f, err := fs.Open(c.Request.URL.Path)
-		if err != nil {
-			c.Writer.WriteHeader(http.StatusNotFound)
-			return
-		}
-		if err = f.Close(); err != nil {
-			log.Printf("Error closing file %s\n", err)
-		}
-		fileServer.ServeHTTP(c.Writer, c.Request)
-	}
-	pattern := path.Join(prefix, "/*filepath")
-	r.GET(pattern, handler)
-	r.HEAD(pattern, handler)
-}
-
 type basePage struct {
+	User          *data.User
 	ImagesBaseURL string
 	Year          string
 }
 
-func makeBasePage() *basePage {
+func makeBasePage(c *gin.Context) *basePage {
+	//user, _ := c.Get("user")
 	return &basePage{
+		User:          nil,
 		ImagesBaseURL: lib.ImagesBaseURL,
 		Year:          time.Now().Format("2006"),
 	}

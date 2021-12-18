@@ -4,7 +4,6 @@ import (
 	"embed"
 	"errors"
 	"io/fs"
-	"log"
 	"os"
 	"strings"
 )
@@ -22,7 +21,6 @@ type FS struct{}
 
 func (f FS) Open(name string) (fs.File, error) {
 	if os.Getenv("USE_LOCAL_FS") != "" {
-		log.Printf("Opening... %s\n", name)
 		return os.Open("./app/static/" + name)
 	}
 	if strings.HasPrefix(name, "js/") {

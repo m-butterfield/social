@@ -4,14 +4,15 @@
   <head>
     <title>social</title>
     <link rel="shortcut icon" type="image/jpg" href="{{ .ImagesBaseURL }}favicon.ico"/>
-    {{ template "head" . }}
     <link rel="stylesheet" href="/css/app.css">
+    {{ template "head" . }}
   </head>
   <body>
     <div id="body-div">
       <div class="section-div">
         <h3>social</h3>
         <a href="/">home</a>
+        <a style="float:right;" href="/login">login / signup</a>
       </div>
       {{ template "main" . }}
       <div id="footer">

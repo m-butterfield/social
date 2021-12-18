@@ -5,8 +5,8 @@ import (
 	"log"
 )
 
-func index(c *gin.Context) {
-	body, err := templateRender("index", makeBasePage(c))
+func login(c *gin.Context) {
+	body, err := templateRender("login", makeBasePage(c))
 	if err != nil {
 		log.Fatal(err)
 		return
