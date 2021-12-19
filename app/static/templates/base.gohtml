@@ -12,7 +12,11 @@
       <div class="section-div">
         <h3>social</h3>
         <a href="/">home</a>
-        <a style="float:right;" href="/login">login / signup</a>
+        {{ if .User }}
+          <a style="float: right;" href="/logout">logout</a>
+        {{ else }}
+          <a style="float:right;" href="/login">login / signup</a>
+        {{ end }}
       </div>
       {{ template "main" . }}
       <div id="footer">

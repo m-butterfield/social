@@ -36,6 +36,13 @@ func (s *ds) CreateAccessToken(user *User) (*AccessToken, error) {
 	return token, nil
 }
 
+func (s *ds) DeleteAccessToken(id string) error {
+	if tx := s.db.Delete(&AccessToken{}, "id = $1", id); tx.Error != nil {
+		return tx.Error
+	}
+	return nil
+}
+
 func randomToken() (string, error) {
 	b := make([]byte, tokenByteLength)
 	_, err := rand.Read(b)

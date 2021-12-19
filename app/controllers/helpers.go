@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/render"
 	"github.com/m-butterfield/social/app/data"
@@ -13,7 +14,8 @@ import (
 )
 
 const (
-	templatePath = "templates/"
+	templatePath     = "templates/"
+	sessionTokenName = "SessionToken"
 )
 
 var (
@@ -50,12 +52,22 @@ type basePage struct {
 }
 
 func makeBasePage(c *gin.Context) *basePage {
-	//user, _ := c.Get("user")
 	return &basePage{
-		User:          nil,
+		User:          loggedInUser(c),
 		ImagesBaseURL: lib.ImagesBaseURL,
 		Year:          time.Now().Format("2006"),
 	}
+}
+
+func loggedInUser(c *gin.Context) *data.User {
+	result, exists := c.Get("user")
+	if !exists {
+		return nil
+	}
+	if user, ok := result.(*data.User); ok {
+		return user
+	}
+	return nil
 }
 
 type userLoginRequest struct {
@@ -70,9 +82,28 @@ func cookieLogin(w http.ResponseWriter, user *data.User) error {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "SessionToken",
+		Name:    sessionTokenName,
 		Value:   token.ID,
 		Expires: token.ExpiresAt,
 	})
 	return nil
+}
+
+func unsetSessionCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:    sessionTokenName,
+		Value:   "",
+		Expires: time.Unix(0, 0),
+	})
+}
+
+func getSessionCookie(c *gin.Context) (*http.Cookie, error) {
+	cookie, err := c.Request.Cookie(sessionTokenName)
+	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return cookie, nil
 }

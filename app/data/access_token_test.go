@@ -122,3 +122,45 @@ func TestGetAccessTokenExpired(t *testing.T) {
 		t.Fatal(tx.Error)
 	}
 }
+
+func TestDeleteAccessToken(t *testing.T) {
+	s, err := getDS()
+	if err != nil {
+		t.Fatal(err)
+	}
+	user := &User{ID: "test"}
+	err = s.CreateUser(user)
+	if err != nil {
+		t.Fatal(err)
+	}
+	token, err := s.CreateAccessToken(user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err = s.DeleteAccessToken(token.ID); err != nil {
+		t.Fatal(err)
+	}
+
+	tx := s.db.First(&token, "id = $1", token.ID)
+	if tx.Error == nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		t.Error("Expected No Rows Err")
+	}
+	if tx := s.db.Delete(user); tx.Error != nil {
+		t.Fatal(tx.Error)
+	}
+}
+
+func TestDeleteAccessTokenAlreadyDeleted(t *testing.T) {
+	s, err := getDS()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err = s.DeleteAccessToken("doesntexist"); err != nil {
+		t.Fatal(err)
+	}
+}

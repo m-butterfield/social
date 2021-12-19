@@ -3,9 +3,10 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/social/app/lib"
+	"net/http"
 )
 
-func auth(c *gin.Context) {
+func logout(c *gin.Context) {
 	cookie, err := getSessionCookie(c)
 	if err != nil {
 		lib.InternalError(err, c)
@@ -14,14 +15,10 @@ func auth(c *gin.Context) {
 	if cookie == nil {
 		return
 	}
-	token, err := ds.GetAccessToken(cookie.Value)
-	if err != nil {
+	if err := ds.DeleteAccessToken(cookie.Value); err != nil {
 		lib.InternalError(err, c)
 		return
 	}
-	if token == nil {
-		unsetSessionCookie(c.Writer)
-		return
-	}
-	c.Set("user", token.User)
+	unsetSessionCookie(c.Writer)
+	c.Redirect(http.StatusFound, "/")
 }

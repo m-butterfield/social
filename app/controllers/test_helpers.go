@@ -18,6 +18,8 @@ type testStore struct {
 	getUserCallCount           int
 	createAccessToken          func(*data.User) (*data.AccessToken, error)
 	createAccessTokenCallCount int
+	deleteAccessToken          func(string) error
+	deleteAccessTokenCallCount int
 	getAccessToken             func(string) (*data.AccessToken, error)
 	getAccessTokenCallCount    int
 }
@@ -35,6 +37,11 @@ func (t *testStore) GetUser(id string) (*data.User, error) {
 func (t *testStore) CreateAccessToken(user *data.User) (*data.AccessToken, error) {
 	t.createAccessTokenCallCount += 1
 	return t.createAccessToken(user)
+}
+
+func (t *testStore) DeleteAccessToken(id string) error {
+	t.deleteAccessTokenCallCount += 1
+	return t.deleteAccessToken(id)
 }
 
 func (t *testStore) GetAccessToken(id string) (*data.AccessToken, error) {
