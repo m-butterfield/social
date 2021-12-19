@@ -47,13 +47,17 @@ func createUser(c *gin.Context) {
 		return
 	}
 
-	if err = ds.CreateUser(&data.User{
+	user := &data.User{
 		ID:       createReq.UserID,
 		Password: string(hashedPW),
-	}); err != nil {
+	}
+	if err = ds.CreateUser(user); err != nil {
 		lib.InternalError(err, c)
 		return
 	}
 
-	c.Status(http.StatusCreated)
+	if err = cookieLogin(c.Writer, user); err != nil {
+		lib.InternalError(err, c)
+		return
+	}
 }

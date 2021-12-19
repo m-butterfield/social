@@ -54,7 +54,7 @@ func TestLoginUser(t *testing.T) {
 	req.Header.Add("Content-Type", "application/json")
 	testRouter().ServeHTTP(w, req)
 
-	assert.Equal(t, 302, w.Code)
+	assert.Equal(t, 200, w.Code)
 	assert.Equal(t, ts.getUserCallCount, 1)
 	assert.Equal(t, ts.createAccessTokenCallCount, 1)
 	cookies := w.Result().Cookies()
