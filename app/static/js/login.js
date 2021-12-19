@@ -8,7 +8,6 @@ function submitUser(e) {
     if (resp.status === 400) {
       resp.text().then(val => alert(val));
     } else if (resp.status === 200) {
-      alert("success!");
       location.href = "/";
     }
   }).catch(err => {
