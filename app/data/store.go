@@ -44,6 +44,7 @@ type Store interface {
 	CreateUser(*User) error
 	GetUser(string) (*User, error)
 	CreateAccessToken(*User) (*AccessToken, error)
+	DeleteAccessToken(string) error
 	GetAccessToken(string) (*AccessToken, error)
 }
 

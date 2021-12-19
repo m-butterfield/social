@@ -27,7 +27,7 @@ func TestAuthGoodToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	c.Request.AddCookie(&http.Cookie{
-		Name:  "SessionToken",
+		Name:  sessionTokenName,
 		Value: tokenID,
 	})
 
@@ -55,7 +55,7 @@ func TestAuthBadToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	c.Request.AddCookie(&http.Cookie{
-		Name:  "SessionToken",
+		Name:  sessionTokenName,
 		Value: tokenID,
 	})
 

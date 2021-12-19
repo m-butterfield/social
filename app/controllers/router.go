@@ -27,6 +27,7 @@ func router() *gin.Engine {
 	r.GET("/login", login)
 	r.POST("/login", loginUser)
 	r.POST("/create_user", createUser)
+	r.GET("/logout", logout)
 
 	return r
 }
