@@ -1,6 +1,11 @@
 {{ template "base" . }}
 {{ define "head" }}{{ end }}
 {{ define "main" }}
+{{ if .User }}
+<div class="section-div">
+  You are already logged in!
+</div>
+{{ else }}
 <div class="section-div">
   <h3>login:</h3>
   <form method="POST" class="user-form">
@@ -17,4 +22,5 @@
   </form>
 </div>
 <script type="text/javascript" src="/js/login.js"></script>
+{{ end }}
 {{ end }}

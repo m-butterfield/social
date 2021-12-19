@@ -27,8 +27,8 @@ fmt:
 	npx eslint app/static/js/ --fix
 	cd infra/ && terraform fmt
 
-run: export USE_LOCAL_FS=true
-run:
+run-server: export USE_LOCAL_FS=true
+run-server:
 	go run cmd/server/main.go
 
 test: export DB_SOCKET=host=localhost dbname=social_test
