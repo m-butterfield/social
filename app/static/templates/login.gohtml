@@ -3,16 +3,16 @@
 {{ define "main" }}
 <div class="section-div">
   <h3>login:</h3>
-  <form method="POST">
-    <div class="section-div"><p><label for="userID">user id: </label></p><input id="userID" name="userID" required="required"/></div>
-    <div class="section-div"><p><label for="password">password: </label></p><input id="password" name="password" type="password" required="required"/></div>
+  <form method="POST" class="user-form">
+    <div class="section-div"><p><label for="loginUserID">user id: </label></p><input id="loginUserID" name="userID" /></div>
+    <div class="section-div"><p><label for="loginPassword">password: </label></p><input id="loginPassword" name="password" type="password" /></div>
     <div class="section-div"><button type="submit">login</button></div>
   </form>
-  <form method="POST" action="/create_user">
+  <form method="POST" class="user-form" action="/create_user">
     <h3>or...</h3>
     <h3>create account:</h3>
-    <div class="section-div"><p><label for="userID">user id: </label></p><input id="userID" name="userID" required="required"/></div>
-    <div class="section-div"><p><label for="password">password: </label></p><input id="password" name="password" type="password" required="required"/></div>
+    <div class="section-div"><p><label for="createUserID">user id: </label></p><input id="createUserID" name="userID" /></div>
+    <div class="section-div"><p><label for="createPassword">password: </label></p><input id="createPassword" name="password" type="password" /></div>
     <div class="section-div"><button type="submit">create account</button></div>
   </form>
 </div>

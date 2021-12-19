@@ -8,6 +8,7 @@ import (
 	"github.com/m-butterfield/social/app/static"
 	"html/template"
 	"net"
+	"net/http"
 	"time"
 )
 
@@ -55,4 +56,23 @@ func makeBasePage(c *gin.Context) *basePage {
 		ImagesBaseURL: lib.ImagesBaseURL,
 		Year:          time.Now().Format("2006"),
 	}
+}
+
+type userLoginRequest struct {
+	UserID   string `json:"userID"`
+	Password string `json:"password"`
+}
+
+func cookieLogin(w http.ResponseWriter, user *data.User) error {
+	token, err := ds.CreateAccessToken(user)
+	if err != nil {
+		return err
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    "SessionToken",
+		Value:   token.ID,
+		Expires: token.ExpiresAt,
+	})
+	return nil
 }

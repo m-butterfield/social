@@ -13,7 +13,7 @@ func testRouter() *gin.Engine {
 
 type testStore struct {
 	createUser                 func(*data.User) error
-	createUseCallCount         int
+	createUserCallCount        int
 	getUser                    func(string) (*data.User, error)
 	getUserCallCount           int
 	createAccessToken          func(*data.User) (*data.AccessToken, error)
@@ -23,7 +23,7 @@ type testStore struct {
 }
 
 func (t *testStore) CreateUser(user *data.User) error {
-	t.createUseCallCount += 1
+	t.createUserCallCount += 1
 	return t.createUser(user)
 }
 

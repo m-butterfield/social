@@ -7,11 +7,6 @@ import (
 	"net/http"
 )
 
-type userLoginRequest struct {
-	UserID   string `json:"userID"`
-	Password string `json:"password"`
-}
-
 func loginUser(c *gin.Context) {
 	loginReq := &userLoginRequest{}
 	err := c.Bind(loginReq)
@@ -35,16 +30,8 @@ func loginUser(c *gin.Context) {
 		return
 	}
 
-	token, err := ds.CreateAccessToken(user)
-	if err != nil {
+	if err = cookieLogin(c.Writer, user); err != nil {
 		lib.InternalError(err, c)
 		return
 	}
-
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:    "SessionToken",
-		Value:   token.ID,
-		Expires: token.ExpiresAt,
-	})
-	c.Redirect(http.StatusFound, "/")
 }
