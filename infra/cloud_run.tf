@@ -53,3 +53,16 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
 
   policy_data = data.google_iam_policy.noauth.policy_data
 }
+
+resource "google_cloud_run_domain_mapping" "social" {
+  location = var.default_region
+  name     = "social.mattbutterfield.com"
+
+  metadata {
+    namespace = var.project
+  }
+
+  spec {
+    route_name = google_cloud_run_service.social.name
+  }
+}
