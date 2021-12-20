@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestAuthGoodToken(t *testing.T) {
@@ -63,6 +64,11 @@ func TestAuthBadToken(t *testing.T) {
 
 	_, exists := c.Get("user")
 	assert.False(t, exists)
+	cookies := w.Result().Cookies()
+	assert.Equal(t, len(cookies), 1)
+	sessionCookie := cookies[0]
+	assert.Equal(t, sessionCookie.Value, "")
+	assert.Equal(t, sessionCookie.Expires, time.Unix(0, 0).UTC())
 }
 
 func TestAuthNoToken(t *testing.T) {
