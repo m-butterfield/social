@@ -55,7 +55,7 @@ func makeBasePage(c *gin.Context) *basePage {
 	return &basePage{
 		User:          loggedInUser(c),
 		ImagesBaseURL: lib.ImagesBaseURL,
-		Year:          time.Now().Format("2006"),
+		Year:          time.Now().UTC().Format("2006"),
 	}
 }
 

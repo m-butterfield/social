@@ -27,7 +27,7 @@ func (s *ds) CreateAccessToken(user *User) (*AccessToken, error) {
 	}
 	token := &AccessToken{
 		ID:        tokenStr,
-		ExpiresAt: time.Now().Add(TokenTTL),
+		ExpiresAt: time.Now().UTC().Add(TokenTTL),
 		User:      user,
 	}
 	if tx := s.db.Create(token); tx.Error != nil {
