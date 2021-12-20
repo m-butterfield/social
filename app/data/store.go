@@ -15,21 +15,6 @@ func Connect() (Store, error) {
 	return s, nil
 }
 
-func Migrate() error {
-	s, err := getDS()
-	if err != nil {
-		return err
-	}
-	err = s.db.AutoMigrate(
-		&AccessToken{},
-		&User{},
-	)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func getDS() (*ds, error) {
 	db, err := gorm.Open(postgres.Open(os.Getenv("DB_SOCKET")), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
@@ -46,6 +31,8 @@ type Store interface {
 	CreateAccessToken(*User) (*AccessToken, error)
 	DeleteAccessToken(string) error
 	GetAccessToken(string) (*AccessToken, error)
+	CreatePost(*Post) error
+	GetPosts() ([]*Post, error)
 }
 
 type ds struct {

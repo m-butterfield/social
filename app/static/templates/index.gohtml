@@ -2,6 +2,9 @@
 {{ define "head" }}{{ end }}
 {{ define "main" }}
 <div class="section-div">
-  hello.
+  {{ range $i, $post := .Posts }}
+    <p>{{ $post.UserID }} says:</p>
+    <p>{{ $post.Body }}</p>
+  {{end}}
 </div>
 {{ end }}

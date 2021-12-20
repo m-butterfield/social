@@ -29,6 +29,11 @@ func router() *gin.Engine {
 	r.POST("/create_user", createUser)
 	r.GET("/logout", logout)
 
+	ur := r.Group("/user")
+	ur.Use(authRequired)
+	ur.GET("/create_post", createPost)
+	ur.POST("/create_post", createPostSubmit)
+
 	return r
 }
 

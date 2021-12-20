@@ -14,9 +14,9 @@ const (
 )
 
 type AccessToken struct {
-	ID        string
+	ID        string    `gorm:"type:varchar(64)"`
 	ExpiresAt time.Time `gorm:"not null"`
-	UserID    string    `gorm:"not null"`
+	UserID    string    `gorm:"type:varchar(64);not null"`
 	User      *User
 }
 
