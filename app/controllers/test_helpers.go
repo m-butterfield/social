@@ -22,6 +22,10 @@ type testStore struct {
 	deleteAccessTokenCallCount int
 	getAccessToken             func(string) (*data.AccessToken, error)
 	getAccessTokenCallCount    int
+	createPost                 func(*data.Post) error
+	createPostCallCount        int
+	getPosts                   func() ([]*data.Post, error)
+	getPostsCallCount          int
 }
 
 func (t *testStore) CreateUser(user *data.User) error {
@@ -47,4 +51,14 @@ func (t *testStore) DeleteAccessToken(id string) error {
 func (t *testStore) GetAccessToken(id string) (*data.AccessToken, error) {
 	t.getAccessTokenCallCount += 1
 	return t.getAccessToken(id)
+}
+
+func (t *testStore) CreatePost(post *data.Post) error {
+	t.createPostCallCount += 1
+	return t.createPost(post)
+}
+
+func (t *testStore) GetPosts() ([]*data.Post, error) {
+	t.getPostsCallCount += 1
+	return t.getPosts()
 }

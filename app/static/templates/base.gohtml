@@ -10,11 +10,12 @@
   <body>
     <div id="body-div">
       <div class="section-div">
-        <h3>social</h3>
-        <a href="/">home</a>
+        <h3><a href="/" style="text-decoration: none;">social</a></h3>
         {{ if .User }}
+          <a href="/user/create_post">create a post</a>
           <a style="float: right;" href="/logout">logout</a>
         {{ else }}
+          <a href="/">home</a>
           <a style="float:right;" href="/login">login / signup</a>
         {{ end }}
       </div>

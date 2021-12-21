@@ -6,8 +6,8 @@ import (
 )
 
 type User struct {
-	ID       string
-	Password string `gorm:"not null"`
+	ID       string `gorm:"type:varchar(64)"`
+	Password string `gorm:"type:varchar(60);not null"`
 }
 
 func (s *ds) CreateUser(user *User) error {
