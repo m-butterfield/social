@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/lib"
-	"log"
 )
 
 type homePage struct {
@@ -23,7 +22,7 @@ func index(c *gin.Context) {
 		Posts:    posts,
 	})
 	if err != nil {
-		log.Fatal(err)
+		lib.InternalError(err, c)
 		return
 	}
 	c.Render(200, body)

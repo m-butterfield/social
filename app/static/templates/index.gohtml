@@ -4,7 +4,7 @@
 <div class="section-div">
   {{ range $i, $post := .Posts }}
     <p>{{ $post.UserID }} says:</p>
-    <p>{{ $post.Body }}</p>
+    <p style="white-space: pre;">{{ $post.Body }}</p>
   {{end}}
 </div>
 {{ end }}

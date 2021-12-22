@@ -1,10 +1,13 @@
 package data
 
+import "time"
+
 type Post struct {
-	ID     int
-	Body   string
-	UserID string `gorm:"type:varchar(64);not null"`
-	User   *User
+	ID        int
+	Body      string
+	UserID    string `gorm:"type:varchar(64);not null"`
+	User      *User
+	CreatedAt time.Time `gorm:"not null;default:now()"`
 }
 
 func (s *ds) CreatePost(post *Post) error {
@@ -16,7 +19,7 @@ func (s *ds) CreatePost(post *Post) error {
 
 func (s *ds) GetPosts() ([]*Post, error) {
 	var posts []*Post
-	if tx := s.db.Find(&posts); tx.Error != nil {
+	if tx := s.db.Order("created_at DESC").Limit(20).Find(&posts); tx.Error != nil {
 		return nil, tx.Error
 	}
 	return posts, nil

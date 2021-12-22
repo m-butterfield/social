@@ -15,3 +15,8 @@ variable "db_socket" {
   type      = string
   sensitive = true
 }
+
+variable "social_uploader_service_account" {
+  type      = string
+  sensitive = true
+}

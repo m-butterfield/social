@@ -19,3 +19,9 @@ resource "google_sql_user" "social" {
   instance = google_sql_database_instance.mattbutterfield.name
   password = var.db_password
 }
+
+resource "google_project_iam_member" "social_cloud_run_cloud_sql" {
+  project = var.project
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${google_service_account.social_cloud_run.email}"
+}

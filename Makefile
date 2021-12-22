@@ -22,12 +22,16 @@ reset-db:
 	createdb social
 	go run cmd/migrate/main.go
 
+make migrate:
+	go run cmd/migrate/main.go
+
 fmt:
 	go fmt ./...
 	npx eslint app/static/js/ --fix
 	cd infra/ && terraform fmt
 
 run-server: export USE_LOCAL_FS=true
+run-server: export SQL_LOGS=true
 run-server:
 	go run cmd/server/main.go
 

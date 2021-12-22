@@ -15,3 +15,11 @@ export function submitForm(e) {
     console.log(err);
   });
 }
+
+export function disableForm() {
+  document.querySelectorAll(".upload-form-element").forEach(e => e.disabled = true);
+}
+
+export function enableForm() {
+  document.querySelectorAll(".upload-form-element").forEach(e => e.disabled = false);
+}
