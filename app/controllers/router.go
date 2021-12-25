@@ -9,7 +9,12 @@ import (
 )
 
 func router() *gin.Engine {
-	r := gin.New()
+	var r *gin.Engine
+	if gin.Mode() == gin.ReleaseMode {
+		r = gin.New()
+	} else {
+		r = gin.Default()
+	}
 	if err := r.SetTrustedProxies(nil); err != nil {
 		log.Fatal(err)
 	}
@@ -31,6 +36,7 @@ func router() *gin.Engine {
 
 	ur := r.Group("/user")
 	ur.Use(authRequired)
+	ur.POST("/signed_upload_url", signedUploadURL)
 	ur.GET("/create_post", createPost)
 	ur.POST("/create_post", createPostSubmit)
 

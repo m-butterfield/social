@@ -18,8 +18,22 @@ resource "google_cloud_run_service" "social" {
           value_from {
             secret_key_ref {
               name = google_secret_manager_secret.social_db_socket.secret_id
-              key  = "1"
+              key  = "latest"
             }
+          }
+        }
+        volume_mounts {
+          mount_path = "/secrets"
+          name       = "secrets"
+        }
+      }
+      volumes {
+        name = "secrets"
+        secret {
+          secret_name = google_secret_manager_secret.social_uploader_service_account.secret_id
+          items {
+            key  = "latest"
+            path = "uploadercreds.json"
           }
         }
       }

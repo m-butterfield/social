@@ -1,10 +1,11 @@
 resource "google_storage_bucket" "content" {
   name     = "social-content"
   location = "US"
-}
 
-resource "google_storage_bucket_access_control" "public_rule" {
-  bucket = google_storage_bucket.content.name
-  role   = "READER"
-  entity = "allUsers"
+  cors {
+    origin          = ["*"]
+    method          = ["GET", "HEAD", "PUT", "POST", "DELETE"]
+    response_header = ["*"]
+    max_age_seconds = 3600
+  }
 }
