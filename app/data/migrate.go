@@ -7,7 +7,9 @@ func Migrate() error {
 	}
 	err = s.db.AutoMigrate(
 		&AccessToken{},
+		&Image{},
 		&Post{},
+		&PostImage{},
 		&User{},
 	)
 	if err != nil {

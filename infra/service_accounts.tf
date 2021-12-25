@@ -6,8 +6,8 @@ resource "google_service_account" "social_uploader" {
   account_id = "social-uploader"
 }
 
-resource "google_project_iam_member" "social_uploader" {
+resource "google_project_iam_member" "social_act_as_sa" {
   project = var.project
-  role    = "roles/storage.objectCreator"
-  member  = "serviceAccount:${google_service_account.social_uploader.email}"
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.social_cloud_run.email}"
 }

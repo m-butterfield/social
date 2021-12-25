@@ -1,6 +1,8 @@
 package data
 
 import (
+	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 	"testing"
 )
 
@@ -9,15 +11,81 @@ func TestCreatePost(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	user := &User{ID: "testUser"}
+	if err = s.CreateUser(user); err != nil {
+		t.Fatal(err)
+	}
 	post := &Post{
-		Body: "test body",
-		User: &User{ID: "testUser"},
+		UserID: user.ID,
 	}
 	if err = s.CreatePost(post); err != nil {
 		t.Fatal(err)
 	}
 
-	if tx := s.db.Delete(post); tx.Error != nil {
+	assert.NotNil(t, post.CreatedAt)
+	assert.Nil(t, post.PublishedAt)
+
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Post{})
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
+}
+
+func TestGetPost(t *testing.T) {
+	s, err := getDS()
+	if err != nil {
+		t.Fatal(err)
+	}
+	user := &User{ID: "testUser"}
+	if err = s.CreateUser(user); err != nil {
+		t.Fatal(err)
+	}
+	post := &Post{
+		UserID: user.ID,
+	}
+	if err = s.CreatePost(post); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := s.GetPost(post.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, *post, *result)
+
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Post{})
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
+}
+
+func TestPublishPost(t *testing.T) {
+	s, err := getDS()
+	if err != nil {
+		t.Fatal(err)
+	}
+	user := &User{ID: "testUser"}
+	if err = s.CreateUser(user); err != nil {
+		t.Fatal(err)
+	}
+	post := &Post{
+		UserID: user.ID,
+	}
+	if err = s.CreatePost(post); err != nil {
+		t.Fatal(err)
+	}
+	image, err := s.GetOrCreateImage("blerp.jpg", 100, 200)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err = s.PublishPost(post.ID, []*Image{image}); err != nil {
+		t.Fatal(err)
+	}
+	if tx := s.db.Preload("PostImages").First(&post, post.ID); tx.Error != nil {
 		t.Fatal(tx.Error)
 	}
+	assert.NotNil(t, post.PublishedAt)
+	assert.Equal(t, 1, len(post.PostImages))
+
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&PostImage{})
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Image{})
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Post{})
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
 }

@@ -23,6 +23,7 @@ var (
 		templatePath + "base.gohtml",
 	}
 	ds data.Store
+	tc lib.TaskCreator
 )
 
 func Run(port string) error {
@@ -30,7 +31,14 @@ func Run(port string) error {
 	if ds, err = data.Connect(); err != nil {
 		return err
 	}
-	return router().Run(net.JoinHostPort("", port))
+	if tc, err = lib.NewTaskCreator(); err != nil {
+		return err
+	}
+	r, err := router()
+	if err != nil {
+		return err
+	}
+	return r.Run(net.JoinHostPort("", port))
 }
 
 func templateRender(name string, data interface{}) (render.Render, error) {

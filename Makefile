@@ -1,28 +1,54 @@
 cloudrunbasecommand := gcloud run deploy --region=us-central1
+deployservercommand := $(cloudrunbasecommand) --image=gcr.io/mattbutterfield/social social
+deployworkercommand := $(cloudrunbasecommand) --image=gcr.io/mattbutterfield/social-worker social-worker
 
 terraformbasecommand := cd infra && terraform
 terraformvarsarg := -var-file=secrets.tfvars
 
 export DB_SOCKET=host=localhost dbname=social
 
-build:
+build: build-server build-worker
+
+build-server:
 	go build -o bin/server cmd/server/main.go
 
+build-worker:
+	go build -o bin/worker cmd/worker/main.go
+
 deploy: docker-build docker-push
-	$(cloudrunbasecommand) --image=gcr.io/mattbutterfield/social social
+	$(deployservercommand)
+	$(deployworkercommand)
+
+deploy-server: docker-build-server docker-push-server
+	$(deployservercommand)
+
+deploy-worker: docker-build-worker docker-push-worker
+	$(deployworkercommand)
 
 docker-build:
 	docker-compose build
 
+docker-build-server:
+	docker-compose build server
+
+docker-build-worker:
+	docker-compose build worker
+
 docker-push:
 	docker-compose push
+
+docker-push-server:
+	docker-compose push server
+
+docker-push-worker:
+	docker-compose push worker
 
 reset-db:
 	dropdb --if-exists social
 	createdb social
 	go run cmd/migrate/main.go
 
-make migrate:
+migrate:
 	go run cmd/migrate/main.go
 
 fmt:
@@ -32,8 +58,13 @@ fmt:
 
 run-server: export USE_LOCAL_FS=true
 run-server: export SQL_LOGS=true
+run-server: export WORKER_BASE_URL=http://localhost:8001/
 run-server:
 	go run cmd/server/main.go
+
+run-worker: export SQL_LOGS=true
+run-worker:
+	go run cmd/worker/main.go
 
 test: export DB_SOCKET=host=localhost dbname=social_test
 test:
@@ -45,6 +76,9 @@ tf-plan:
 
 tf-apply:
 	$(terraformbasecommand) apply $(terraformvarsarg)
+
+tf-refresh:
+	$(terraformbasecommand) apply $(terraformvarsarg) -refresh-only
 
 update-deps:
 	go get -u ./...

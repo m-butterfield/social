@@ -7,6 +7,6 @@ import (
 
 func main() {
 	if err := controllers.Run("8000"); err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
 }

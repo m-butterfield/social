@@ -8,7 +8,8 @@ import (
 )
 
 type createPostRequest struct {
-	Body string `json:"body"`
+	Body   string   `json:"body"`
+	Images []string `json:"images"`
 }
 
 func createPostSubmit(c *gin.Context) {
@@ -19,8 +20,8 @@ func createPostSubmit(c *gin.Context) {
 		return
 	}
 
-	if createReq.Body == "" {
-		c.String(http.StatusBadRequest, "Please provide a post body")
+	if len(createReq.Images) == 0 {
+		c.String(http.StatusBadRequest, "Please provide an image")
 		return
 	}
 	if len(createReq.Body) > 4096 {
@@ -29,13 +30,21 @@ func createPostSubmit(c *gin.Context) {
 	}
 
 	post := &data.Post{
-		Body: createReq.Body,
-		User: loggedInUser(c),
+		Body:   createReq.Body,
+		UserID: loggedInUser(c).ID,
 	}
 	if err = ds.CreatePost(post); err != nil {
 		lib.InternalError(err, c)
 		return
 	}
 
-	c.Status(201)
+	if _, err := tc.CreateTask("publish_post", "social-publish-post", &lib.PublishPostRequest{
+		PostID: post.ID,
+		Images: createReq.Images,
+	}); err != nil {
+		lib.InternalError(err, c)
+		return
+	}
+
+	c.JSON(http.StatusCreated, post)
 }

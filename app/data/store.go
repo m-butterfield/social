@@ -39,6 +39,9 @@ type Store interface {
 	GetAccessToken(string) (*AccessToken, error)
 	CreatePost(*Post) error
 	GetPosts() ([]*Post, error)
+	GetPost(int) (*Post, error)
+	GetOrCreateImage(string, int, int) (*Image, error)
+	PublishPost(int, []*Image) error
 }
 
 type ds struct {
