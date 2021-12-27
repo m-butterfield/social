@@ -22,14 +22,16 @@ func TestCreatePostSubmit(t *testing.T) {
 		Body: "post body",
 	}
 	expectedImages := []string{"test.jpg"}
+	expectedUserID := "testUser"
 	ts := &testStore{
 		createPost: func(post *data.Post) error {
 			post.ID = 123
-			assert.Equal(t, *expectedPost, *post)
+			assert.Equal(t, expectedPost.Body, post.Body)
+			assert.Equal(t, expectedUserID, post.UserID)
 			return nil
 		},
 		getAccessToken: func(string) (*data.AccessToken, error) {
-			return &data.AccessToken{User: expectedPost.User}, nil
+			return &data.AccessToken{User: &data.User{ID: expectedUserID}}, nil
 		},
 	}
 	ds = ts
@@ -80,7 +82,7 @@ func TestCreatePostSubmitNoBody(t *testing.T) {
 	ts := &testStore{
 		createPost: func(post *data.Post) error { return nil },
 		getAccessToken: func(string) (*data.AccessToken, error) {
-			return &data.AccessToken{}, nil
+			return &data.AccessToken{User: &data.User{ID: "testUser"}}, nil
 		},
 	}
 	ds = ts

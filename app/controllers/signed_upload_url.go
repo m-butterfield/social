@@ -1,14 +1,13 @@
 package controllers
 
 import (
+	"cloud.google.com/go/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/social/app/lib"
 	"golang.org/x/oauth2/google"
 	"net/http"
 	"os"
 	"time"
-
-	"cloud.google.com/go/storage"
 )
 
 type signedUploadURLRequest struct {
