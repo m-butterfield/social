@@ -1,10 +1,17 @@
 {{ template "base" . }}
 {{ define "head" }}{{ end }}
 {{ define "main" }}
-<div class="section-div">
-  {{ range $i, $post := .Posts }}
-    <p>{{ $post.UserID }} says:</p>
-    <p style="white-space: pre;">{{ $post.Body }}</p>
-  {{end}}
-</div>
+{{ range $i, $post := .Posts }}
+  <div class="section-div">
+    {{ $post.UserID }}:
+  </div>
+
+  {{ range $i, $postImage := $post.PostImages }}
+    <img src="{{$.ImagesBaseURL}}{{ $postImage.Image.ID }}" style="width: {{ $postImage.Image.Width }}px; max-height: {{ $postImage.Image.Height }}px;" />
+  {{ end }}
+
+  <div class="section-div" style="white-space: pre;">
+    {{ $post.Body }}
+  </div>
+{{end}}
 {{ end }}

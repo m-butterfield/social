@@ -17,9 +17,9 @@ export function submitForm(e) {
 }
 
 export function disableForm() {
-  document.querySelectorAll(".upload-form-element").forEach(e => e.disabled = true);
+  document.querySelectorAll(".form-element").forEach(e => e.disabled = true);
 }
 
 export function enableForm() {
-  document.querySelectorAll(".upload-form-element").forEach(e => e.disabled = false);
+  document.querySelectorAll(".form-element").forEach(e => e.disabled = false);
 }

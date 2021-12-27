@@ -5,3 +5,8 @@ services:
       context: ./
       target: server
     image: "gcr.io/mattbutterfield/social"
+  worker:
+    build:
+      context: ./
+      target: worker
+    image: "gcr.io/mattbutterfield/social-worker"

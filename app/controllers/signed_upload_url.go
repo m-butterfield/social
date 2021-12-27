@@ -35,7 +35,7 @@ func signedUploadURL(c *gin.Context) {
 		c.String(http.StatusBadRequest, "Please provide the content type")
 		return
 	}
-	fileName := "uploads/" + req.FileName
+	fileName := lib.UploadsPrefix + req.FileName
 
 	serviceAccount, err := os.ReadFile("/secrets/uploadercreds.json")
 	if err != nil {
@@ -57,7 +57,7 @@ func signedUploadURL(c *gin.Context) {
 		Expires:        time.Now().UTC().Add(15 * time.Minute),
 	}
 
-	url, err := storage.SignedURL("social-content", fileName, opts)
+	url, err := storage.SignedURL(lib.ContentBucket, fileName, opts)
 	if err != nil {
 		lib.InternalError(err, c)
 		return

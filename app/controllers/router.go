@@ -2,21 +2,16 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/m-butterfield/social/app/lib"
 	"github.com/m-butterfield/social/app/static"
-	"log"
 	"net/http"
 	"path"
 )
 
-func router() *gin.Engine {
-	var r *gin.Engine
-	if gin.Mode() == gin.ReleaseMode {
-		r = gin.New()
-	} else {
-		r = gin.Default()
-	}
-	if err := r.SetTrustedProxies(nil); err != nil {
-		log.Fatal(err)
+func router() (*gin.Engine, error) {
+	r, err := lib.BaseRouter()
+	if err != nil {
+		return nil, err
 	}
 
 	r.Use(auth)
@@ -34,13 +29,17 @@ func router() *gin.Engine {
 	r.POST("/create_user", createUser)
 	r.GET("/logout", logout)
 
-	ur := r.Group("/user")
-	ur.Use(authRequired)
-	ur.POST("/signed_upload_url", signedUploadURL)
-	ur.GET("/create_post", createPost)
-	ur.POST("/create_post", createPostSubmit)
+	app := r.Group("/app")
+	app.Use(authRequired)
+	app.GET("/create_post", createPost)
 
-	return r
+	api := r.Group("/api")
+	app.Use(authRequired)
+	api.POST("/signed_upload_url", signedUploadURL)
+	api.POST("/create_post", createPostSubmit)
+	api.GET("/post/:ID", getPost)
+
+	return r, nil
 }
 
 func addStaticHandler(r *gin.Engine, prefix string, fileServer http.Handler) {

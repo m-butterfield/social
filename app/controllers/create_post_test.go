@@ -10,7 +10,7 @@ import (
 
 func TestCreatePost(t *testing.T) {
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/user/create_post", nil)
+	req, err := http.NewRequest("GET", "/app/create_post", nil)
 	if err != nil {
 		t.Fatal(err)
 	}

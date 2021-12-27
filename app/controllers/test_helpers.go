@@ -3,11 +3,16 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/social/app/data"
+	"google.golang.org/genproto/googleapis/cloud/tasks/v2"
+	"log"
 )
 
 func testRouter() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
-	r := router()
+	r, err := router()
+	if err != nil {
+		log.Fatal(err)
+	}
 	return r
 }
 
@@ -26,6 +31,8 @@ type testStore struct {
 	createPostCallCount        int
 	getPosts                   func() ([]*data.Post, error)
 	getPostsCallCount          int
+	getPost                    func(int) (*data.Post, error)
+	getPostCallCount           int
 }
 
 func (t *testStore) CreateUser(user *data.User) error {
@@ -61,4 +68,27 @@ func (t *testStore) CreatePost(post *data.Post) error {
 func (t *testStore) GetPosts() ([]*data.Post, error) {
 	t.getPostsCallCount += 1
 	return t.getPosts()
+}
+
+func (t *testStore) GetPost(id int) (*data.Post, error) {
+	t.getPostCallCount += 1
+	return t.getPost(id)
+}
+
+func (t *testStore) GetOrCreateImage(string, int, int) (*data.Image, error) {
+	panic("should not be called")
+}
+
+func (t *testStore) PublishPost(int, []*data.Image) error {
+	panic("should not be called")
+}
+
+type testTaskCreator struct {
+	createTask          func(string, string, interface{}) (*tasks.Task, error)
+	createTaskCallCount int
+}
+
+func (t *testTaskCreator) CreateTask(taskName, queueID string, body interface{}) (*tasks.Task, error) {
+	t.createTaskCallCount += 1
+	return t.createTask(taskName, queueID, body)
 }

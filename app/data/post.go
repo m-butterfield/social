@@ -1,13 +1,19 @@
 package data
 
-import "time"
+import (
+	"errors"
+	"gorm.io/gorm"
+	"time"
+)
 
 type Post struct {
-	ID        int
-	Body      string
-	UserID    string `gorm:"type:varchar(64);not null"`
-	User      *User
-	CreatedAt time.Time `gorm:"not null;default:now()"`
+	ID          int          `json:"id"`
+	Body        string       `json:"-"`
+	UserID      string       `json:"-" gorm:"type:varchar(64);not null"`
+	User        *User        `json:"-"`
+	CreatedAt   time.Time    `json:"-" gorm:"not null;default:now()"`
+	PublishedAt *time.Time   `json:"publishedAt"`
+	PostImages  []*PostImage `json:"-"`
 }
 
 func (s *ds) CreatePost(post *Post) error {
@@ -17,9 +23,38 @@ func (s *ds) CreatePost(post *Post) error {
 	return nil
 }
 
+func (s *ds) PublishPost(id int, images []*Image) error {
+	post := &Post{ID: id}
+	var postImages []*PostImage
+	for _, image := range images {
+		postImages = append(postImages, &PostImage{Post: post, Image: image})
+	}
+	if tx := s.db.Create(&postImages); tx.Error != nil {
+		return tx.Error
+	}
+	now := time.Now().UTC()
+	if tx := s.db.Model(&post).Updates(&Post{
+		PublishedAt: &now,
+	}); tx.Error != nil {
+		return tx.Error
+	}
+	return nil
+}
+
+func (s *ds) GetPost(id int) (*Post, error) {
+	var post *Post
+	if tx := s.db.First(&post, id); tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, tx.Error
+	}
+	return post, nil
+}
+
 func (s *ds) GetPosts() ([]*Post, error) {
 	var posts []*Post
-	if tx := s.db.Order("created_at DESC").Limit(20).Find(&posts); tx.Error != nil {
+	if tx := s.db.Preload("PostImages.Image").Where("published_at IS NOT NULL").Order("created_at DESC").Limit(20).Find(&posts); tx.Error != nil {
 		return nil, tx.Error
 	}
 	return posts, nil

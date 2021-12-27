@@ -28,12 +28,8 @@ func TestCreateAccessToken(t *testing.T) {
 
 	assert.Equal(t, token.UserID, user.ID)
 
-	if tx := s.db.Delete(token); tx.Error != nil {
-		t.Fatal(tx.Error)
-	}
-	if tx := s.db.Delete(user); tx.Error != nil {
-		t.Fatal(tx.Error)
-	}
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&AccessToken{})
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
 }
 
 func TestGetAccessToken(t *testing.T) {
@@ -61,12 +57,8 @@ func TestGetAccessToken(t *testing.T) {
 	assert.Equal(t, expectedToken.ID, token.ID)
 	assert.Equal(t, *expectedToken.User, *user)
 
-	if tx := s.db.Delete(expectedToken); tx.Error != nil {
-		t.Fatal(tx.Error)
-	}
-	if tx := s.db.Delete(user); tx.Error != nil {
-		t.Fatal(tx.Error)
-	}
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&AccessToken{})
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
 }
 
 func TestGetAccessTokenInvalid(t *testing.T) {
@@ -118,9 +110,7 @@ func TestGetAccessTokenExpired(t *testing.T) {
 	if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 		t.Error("Expected No Rows Err")
 	}
-	if tx := s.db.Delete(user); tx.Error != nil {
-		t.Fatal(tx.Error)
-	}
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
 }
 
 func TestDeleteAccessToken(t *testing.T) {
@@ -149,9 +139,7 @@ func TestDeleteAccessToken(t *testing.T) {
 	if !errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 		t.Error("Expected No Rows Err")
 	}
-	if tx := s.db.Delete(user); tx.Error != nil {
-		t.Fatal(tx.Error)
-	}
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
 }
 
 func TestDeleteAccessTokenAlreadyDeleted(t *testing.T) {
