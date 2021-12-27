@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/cloudtasks v1.0.0
 	cloud.google.com/go/storage v1.18.2
 	github.com/gin-gonic/gin v1.7.7
+	github.com/h2non/bimg v1.1.5
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8

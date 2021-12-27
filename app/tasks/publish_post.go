@@ -6,12 +6,17 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/h2non/bimg"
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/lib"
-	"image"
-	_ "image/jpeg"
-	"io"
+	"io/ioutil"
 	"log"
+	"math"
+)
+
+const (
+	maxWidth  = 800
+	maxHeight = 1000
 )
 
 func publishPost(c *gin.Context) {
@@ -51,18 +56,22 @@ func saveImage(fileName string) (*data.Image, error) {
 	bucket := client.Bucket(lib.ContentBucket)
 	upload := bucket.Object(lib.UploadsPrefix + fileName)
 
-	width, height, err := getDimensions(ctx, upload)
+	size, imgData, err := processImage(ctx, upload)
 	if err != nil {
 		return nil, err
 	}
 
-	hash, err := getHash(ctx, upload)
+	hash, err := getHash(imgData)
 	if err != nil {
 		return nil, err
 	}
-
 	result := bucket.Object(hash + ".jpg")
-	if _, err := result.CopierFrom(upload).Run(ctx); err != nil {
+	w := result.NewWriter(ctx)
+	w.ContentType = "image/jpeg"
+	if _, err = w.Write(imgData); err != nil {
+		return nil, err
+	}
+	if err = w.Close(); err != nil {
 		return nil, err
 	}
 	if err := result.ACL().Set(ctx, storage.AllUsers, storage.RoleReader); err != nil {
@@ -72,38 +81,64 @@ func saveImage(fileName string) (*data.Image, error) {
 		return nil, err
 	}
 
-	return ds.GetOrCreateImage(result.ObjectName(), width, height)
+	return ds.GetOrCreateImage(result.ObjectName(), size.Width, size.Height)
 }
 
-func getDimensions(ctx context.Context, obj *storage.ObjectHandle) (int, int, error) {
+func processImage(ctx context.Context, obj *storage.ObjectHandle) (*bimg.ImageSize, []byte, error) {
 	reader, err := obj.NewReader(ctx)
 	if err != nil {
-		return 0, 0, err
+		return nil, nil, err
 	}
 	defer func(reader *storage.Reader) {
 		if err := reader.Close(); err != nil {
 			log.Println(err)
 		}
 	}(reader)
-	imgConf, _, err := image.DecodeConfig(reader)
+	buffer, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return 0, 0, err
+		return nil, nil, err
 	}
-	return imgConf.Width, imgConf.Height, nil
+
+	img := bimg.NewImage(buffer)
+	if _, err = img.AutoRotate(); err != nil {
+		return nil, nil, err
+	}
+
+	size, err := img.Size()
+	if err != nil {
+		return nil, nil, err
+	}
+	width := size.Width
+	height := size.Height
+
+	if width > maxWidth {
+		ratio := float64(height) / float64(width)
+		width = maxWidth
+		height = int(math.Round(float64(width) * ratio))
+	}
+	if height > maxHeight {
+		ratio := float64(width) / float64(height)
+		height = maxHeight
+		width = int(math.Round(float64(height) * ratio))
+	}
+
+	imgData, err := img.Process(bimg.Options{
+		Width:   width,
+		Height:  height,
+		Quality: 85,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	return &bimg.ImageSize{
+		Width:  width,
+		Height: height,
+	}, imgData, nil
 }
 
-func getHash(ctx context.Context, obj *storage.ObjectHandle) (string, error) {
-	reader, err := obj.NewReader(ctx)
-	if err != nil {
-		return "", err
-	}
-	defer func(reader *storage.Reader) {
-		if err := reader.Close(); err != nil {
-			log.Println(err)
-		}
-	}(reader)
+func getHash(data []byte) (string, error) {
 	hash := sha256.New()
-	if _, err := io.Copy(hash, reader); err != nil {
+	if _, err := hash.Write(data); err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("%x", hash.Sum(nil)), nil
