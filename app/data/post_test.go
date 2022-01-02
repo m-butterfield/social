@@ -4,6 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
 	"testing"
+	"time"
 )
 
 func TestCreatePost(t *testing.T) {
@@ -86,6 +87,36 @@ func TestPublishPost(t *testing.T) {
 
 	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&PostImage{})
 	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Image{})
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Post{})
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
+}
+
+func TestGetUserPosts(t *testing.T) {
+	s, err := getDS()
+	if err != nil {
+		t.Fatal(err)
+	}
+	user := &User{ID: "testUser"}
+	if err = s.CreateUser(user); err != nil {
+		t.Fatal(err)
+	}
+	now := time.Now()
+	post := &Post{
+		UserID:      user.ID,
+		PublishedAt: &now,
+		PostImages:  []*PostImage{},
+	}
+	if err = s.CreatePost(post); err != nil {
+		t.Fatal(err)
+	}
+
+	result, err := s.GetUserPosts(user.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, 1, len(result))
+	assert.Equal(t, post.ID, result[0].ID)
+
 	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Post{})
 	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
 }
