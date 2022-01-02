@@ -33,6 +33,8 @@ type testStore struct {
 	getPostsCallCount          int
 	getPost                    func(int) (*data.Post, error)
 	getPostCallCount           int
+	getUserPosts               func(string) ([]*data.Post, error)
+	getUserPostsCallCount      int
 }
 
 func (t *testStore) CreateUser(user *data.User) error {
@@ -81,6 +83,11 @@ func (t *testStore) GetOrCreateImage(string, int, int) (*data.Image, error) {
 
 func (t *testStore) PublishPost(int, []*data.Image) error {
 	panic("should not be called")
+}
+
+func (t *testStore) GetUserPosts(id string) ([]*data.Post, error) {
+	t.getUserPostsCallCount += 1
+	return t.getUserPosts(id)
 }
 
 type testTaskCreator struct {

@@ -6,6 +6,7 @@ terraformbasecommand := cd infra && terraform
 terraformvarsarg := -var-file=secrets.tfvars
 
 export DB_SOCKET=host=localhost dbname=social
+export CGO_CFLAGS_ALLOW=-Xpreprocessor
 
 build: build-server build-worker
 

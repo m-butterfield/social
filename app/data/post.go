@@ -54,7 +54,28 @@ func (s *ds) GetPost(id int) (*Post, error) {
 
 func (s *ds) GetPosts() ([]*Post, error) {
 	var posts []*Post
-	if tx := s.db.Preload("PostImages.Image").Where("published_at IS NOT NULL").Order("created_at DESC").Limit(20).Find(&posts); tx.Error != nil {
+	tx := s.db.
+		Preload("PostImages.Image").
+		Where("published_at IS NOT NULL").
+		Order("created_at DESC").
+		Limit(20).
+		Find(&posts)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return posts, nil
+}
+
+func (s *ds) GetUserPosts(id string) ([]*Post, error) {
+	var posts []*Post
+	tx := s.db.
+		Preload("PostImages.Image").
+		Where("user_id = $1", id).
+		Where("published_at IS NOT NULL").
+		Order("created_at DESC").
+		Limit(20).
+		Find(&posts)
+	if tx.Error != nil {
 		return nil, tx.Error
 	}
 	return posts, nil
