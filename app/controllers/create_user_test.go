@@ -24,14 +24,13 @@ func TestCreateUser(t *testing.T) {
 		getUser: func(string) (*data.User, error) { return nil, nil },
 		createUser: func(user *data.User) error {
 			assert.Equal(t, len(user.Password), 60)
-			user.Password = ""
-			if *user != *expectedUser {
+			if user.ID != expectedUser.ID {
 				t.Error("Unexpected user")
 			}
 			return nil
 		},
 		createAccessToken: func(user *data.User) (*data.AccessToken, error) {
-			if *user != *expectedUser {
+			if user.ID != expectedUser.ID {
 				t.Error("Unexpected user")
 			}
 			return &data.AccessToken{ID: tokenID, ExpiresAt: expiresAt}, nil

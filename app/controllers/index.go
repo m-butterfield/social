@@ -12,7 +12,7 @@ type homePage struct {
 }
 
 func index(c *gin.Context) {
-	posts, err := ds.GetPosts()
+	posts, err := ds.GetPosts("blah")
 	if err != nil {
 		lib.InternalError(err, c)
 		return

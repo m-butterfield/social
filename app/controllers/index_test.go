@@ -12,7 +12,7 @@ func TestIndex(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	ts := &testStore{
-		getPosts: func() ([]*data.Post, error) {
+		getPosts: func(userID string) ([]*data.Post, error) {
 			return []*data.Post{}, nil
 		},
 	}
