@@ -6,8 +6,9 @@ import (
 )
 
 type User struct {
-	ID       string `gorm:"type:varchar(64)"`
-	Password string `gorm:"type:varchar(60);not null"`
+	ID        string `gorm:"type:varchar(64)"`
+	Password  string `gorm:"type:varchar(60);not null"`
+	Followers []*Follower
 }
 
 func (s *ds) CreateUser(user *User) error {

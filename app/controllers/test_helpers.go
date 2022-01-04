@@ -29,7 +29,7 @@ type testStore struct {
 	getAccessTokenCallCount    int
 	createPost                 func(*data.Post) error
 	createPostCallCount        int
-	getPosts                   func() ([]*data.Post, error)
+	getPosts                   func(string) ([]*data.Post, error)
 	getPostsCallCount          int
 	getPost                    func(int) (*data.Post, error)
 	getPostCallCount           int
@@ -45,6 +45,14 @@ func (t *testStore) CreateUser(user *data.User) error {
 func (t *testStore) GetUser(id string) (*data.User, error) {
 	t.getUserCallCount += 1
 	return t.getUser(id)
+}
+
+func (t *testStore) CreateFollower(string, string) error {
+	return nil
+}
+
+func (t *testStore) DeleteFollower(string, string) error {
+	return nil
 }
 
 func (t *testStore) CreateAccessToken(user *data.User) (*data.AccessToken, error) {
@@ -67,9 +75,9 @@ func (t *testStore) CreatePost(post *data.Post) error {
 	return t.createPost(post)
 }
 
-func (t *testStore) GetPosts() ([]*data.Post, error) {
+func (t *testStore) GetPosts(userID string) ([]*data.Post, error) {
 	t.getPostsCallCount += 1
-	return t.getPosts()
+	return t.getPosts(userID)
 }
 
 func (t *testStore) GetPost(id int) (*data.Post, error) {

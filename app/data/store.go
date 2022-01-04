@@ -34,11 +34,13 @@ func getDS() (*ds, error) {
 type Store interface {
 	CreateUser(*User) error
 	GetUser(string) (*User, error)
+	CreateFollower(string, string) error
+	DeleteFollower(string, string) error
 	CreateAccessToken(*User) (*AccessToken, error)
 	DeleteAccessToken(string) error
 	GetAccessToken(string) (*AccessToken, error)
 	CreatePost(*Post) error
-	GetPosts() ([]*Post, error)
+	GetPosts(string) ([]*Post, error)
 	GetPost(int) (*Post, error)
 	GetOrCreateImage(string, int, int) (*Image, error)
 	PublishPost(int, []*Image) error

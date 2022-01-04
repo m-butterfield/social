@@ -52,7 +52,7 @@ func (s *ds) GetPost(id int) (*Post, error) {
 	return post, nil
 }
 
-func (s *ds) GetPosts() ([]*Post, error) {
+func (s *ds) GetPosts(userID string) ([]*Post, error) {
 	var posts []*Post
 	tx := s.db.
 		Preload("PostImages.Image").

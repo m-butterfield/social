@@ -48,6 +48,7 @@ reset-db:
 	dropdb --if-exists social
 	createdb social
 	go run cmd/migrate/main.go
+	go run cmd/seed/main.go
 
 migrate:
 	go run cmd/migrate/main.go

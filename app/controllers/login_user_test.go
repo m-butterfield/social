@@ -32,7 +32,7 @@ func TestLoginUser(t *testing.T) {
 		},
 		createUser: func(*data.User) error { return nil },
 		createAccessToken: func(user *data.User) (*data.AccessToken, error) {
-			if *user != *expectedUser {
+			if user.ID != expectedUser.ID {
 				t.Error("Unexpected user")
 			}
 			return &data.AccessToken{ID: tokenID, ExpiresAt: expiresAt}, nil
