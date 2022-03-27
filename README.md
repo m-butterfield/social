@@ -9,5 +9,6 @@ What is needed for development:
   - Docker
   - Terraform
   - Gcloud command line tool 
+  - [Vips](https://github.com/libvips/libvips)
 
 Most functionality can be found in the Makefile.

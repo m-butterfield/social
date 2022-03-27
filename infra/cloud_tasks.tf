@@ -3,7 +3,7 @@ resource "google_app_engine_application" "default" {
   location_id = "us-central"
 }
 
-resource "google_cloud_tasks_queue" "default" {
+resource "google_cloud_tasks_queue" "publish_post" {
   name     = "social-publish-post"
   location = var.default_region
 }
