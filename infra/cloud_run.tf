@@ -116,6 +116,7 @@ resource "google_cloud_run_service" "social-worker" {
         }
       }
       service_account_name = google_service_account.social_cloud_run.email
+      timeout_seconds = 3600
     }
     metadata {
       annotations = {
@@ -123,7 +124,7 @@ resource "google_cloud_run_service" "social-worker" {
         "autoscaling.knative.dev/maxScale"      = "100"
         "client.knative.dev/user-image"         = "gcr.io/mattbutterfield/social-worker"
         "run.googleapis.com/client-name"        = "gcloud"
-        "run.googleapis.com/client-version"     = "378.0.0"
+        "run.googleapis.com/client-version"     = "394.0.0"
       }
     }
   }
