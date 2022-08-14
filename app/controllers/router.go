@@ -21,10 +21,9 @@ func router() (*gin.Engine, error) {
 	addStaticHandler(r, "/css", fileServer)
 	addStaticHandler(r, "/js", fileServer)
 
-	r.GET("/", index)
+	r.NoRoute(index)
 	r.GET("/favicon.ico", favicon)
 
-	r.GET("/login", login)
 	r.POST("/login", loginUser)
 	r.POST("/create_user", createUser)
 	r.GET("/logout", logout)

@@ -10,7 +10,7 @@ export CGO_CFLAGS_ALLOW=-Xpreprocessor
 
 build: build-server build-worker
 
-build-server:
+build-server: run-webpack-prod
 	go build -o bin/server cmd/server/main.go
 
 build-worker:
@@ -54,7 +54,7 @@ migrate:
 
 fmt:
 	go fmt ./...
-	npx eslint app/static/js/ --fix
+	npx eslint app/static/ts/ --fix
 	cd infra/ && terraform fmt
 
 run-server: export USE_LOCAL_FS=true
@@ -66,6 +66,13 @@ run-server:
 run-worker: export SQL_LOGS=true
 run-worker:
 	go run cmd/worker/main.go
+
+run-webpack:
+	yarn run webpack --mode development --watch
+
+run-webpack-prod:
+	rm -rf app/static/js/dist
+	yarn run webpack --mode production
 
 test: export DB_SOCKET=host=localhost dbname=social_test
 test:
@@ -84,5 +91,5 @@ tf-refresh:
 update-deps:
 	go get -u ./...
 	go mod tidy
-	npm upgrade
+	yarn upgrade
 	cd infra && terraform init -upgrade && cd -
