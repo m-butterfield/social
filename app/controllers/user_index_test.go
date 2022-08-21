@@ -11,9 +11,9 @@ import (
 func TestUserIndex(t *testing.T) {
 	w := httptest.NewRecorder()
 	testUser := &data.User{
-		ID: "testUser",
+		Username: "testUser",
 	}
-	req, err := http.NewRequest("GET", "/app/user/"+testUser.ID, nil)
+	req, err := http.NewRequest("GET", "/app/user/"+testUser.Username, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,14 +22,14 @@ func TestUserIndex(t *testing.T) {
 		Value: "1234",
 	})
 	ts := &testStore{
-		getUser: func(id string) (*data.User, error) {
-			assert.Equal(t, testUser.ID, id)
+		getUser: func(username string) (*data.User, error) {
+			assert.Equal(t, testUser.Username, username)
 			return testUser, nil
 		},
 		getAccessToken: func(id string) (*data.AccessToken, error) {
 			return &data.AccessToken{ID: "1234"}, nil
 		},
-		getUserPosts: func(id string) ([]*data.Post, error) {
+		getUserPosts: func(id int) ([]*data.Post, error) {
 			assert.Equal(t, testUser.ID, id)
 			return []*data.Post{{
 				Body: "hello.",
@@ -55,7 +55,7 @@ func TestUserIndexUserDoesNotExist(t *testing.T) {
 		Value: "1234",
 	})
 	ds = &testStore{
-		getUser: func(id string) (*data.User, error) {
+		getUser: func(username string) (*data.User, error) {
 			return nil, nil
 		},
 		getAccessToken: func(id string) (*data.AccessToken, error) {

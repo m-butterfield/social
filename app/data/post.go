@@ -7,13 +7,13 @@ import (
 )
 
 type Post struct {
-	ID          int          `json:"id"`
-	Body        string       `json:"-"`
-	UserID      string       `json:"-" gorm:"type:varchar(64);not null"`
-	User        *User        `json:"-"`
-	CreatedAt   time.Time    `json:"-" gorm:"not null;default:now()"`
-	PublishedAt *time.Time   `json:"publishedAt"`
-	PostImages  []*PostImage `json:"-"`
+	ID          int    `json:"-"`
+	Body        string `json:"body"`
+	UserID      int    `gorm:"not null" json:"-"`
+	User        *User
+	CreatedAt   time.Time `gorm:"not null;default:now()"`
+	PublishedAt *time.Time
+	PostImages  []*PostImage
 }
 
 func (s *ds) CreatePost(post *Post) error {
@@ -66,7 +66,7 @@ func (s *ds) GetPosts() ([]*Post, error) {
 	return posts, nil
 }
 
-func (s *ds) GetUserPosts(id string) ([]*Post, error) {
+func (s *ds) GetUserPosts(id int) ([]*Post, error) {
 	var posts []*Post
 	tx := s.db.
 		Preload("PostImages.Image").

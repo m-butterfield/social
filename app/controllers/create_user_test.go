@@ -16,7 +16,7 @@ import (
 func TestCreateUser(t *testing.T) {
 	w := httptest.NewRecorder()
 	expectedUser := &data.User{
-		ID: "test-user",
+		Username: "test-user",
 	}
 	tokenID := "12345"
 	expiresAt := time.Now().UTC().Add(10 * time.Minute)
@@ -40,7 +40,7 @@ func TestCreateUser(t *testing.T) {
 	ds = ts
 
 	body, err := json.Marshal(&userLoginRequest{
-		UserID:   expectedUser.ID,
+		Username: expectedUser.Username,
 		Password: "password",
 	})
 	if err != nil {
@@ -66,7 +66,7 @@ func TestCreateUser(t *testing.T) {
 func TestCreateUserBlank(t *testing.T) {
 	w := httptest.NewRecorder()
 	body, err := json.Marshal(&userLoginRequest{
-		UserID: "",
+		Username: "",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -83,13 +83,13 @@ func TestCreateUserBlank(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, "Please provide a user ID", string(respBody))
+	assert.Equal(t, "Please provide a user Username", string(respBody))
 }
 
 func TestCreateUserTooLong(t *testing.T) {
 	w := httptest.NewRecorder()
 	body, err := json.Marshal(&userLoginRequest{
-		UserID: strings.Repeat("a", 65),
+		Username: strings.Repeat("a", 65),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -106,20 +106,20 @@ func TestCreateUserTooLong(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, "User ID must be less than 64 characters long", string(respBody))
+	assert.Equal(t, "User Username must be less than 64 characters long", string(respBody))
 }
 
 func TestCreateUserPasswordTooShort(t *testing.T) {
 	w := httptest.NewRecorder()
 	expectedUser := &data.User{
-		ID:       "test-user",
+		Username: "test-user",
 		Password: "pass",
 	}
 	ts := &testStore{getUser: func(string) (*data.User, error) { return nil, nil }}
 	ds = ts
 
 	body, err := json.Marshal(&userLoginRequest{
-		UserID:   expectedUser.ID,
+		Username: expectedUser.Username,
 		Password: expectedUser.Password,
 	})
 	if err != nil {
@@ -143,7 +143,7 @@ func TestCreateUserPasswordTooShort(t *testing.T) {
 func TestCreateUserPasswordTooLong(t *testing.T) {
 	w := httptest.NewRecorder()
 	body, err := json.Marshal(&userLoginRequest{
-		UserID:   "test-user",
+		Username: "test-user",
 		Password: strings.Repeat("a", 65),
 	})
 	if err != nil {
@@ -167,12 +167,12 @@ func TestCreateUserPasswordTooLong(t *testing.T) {
 func TestCreateUserIDTaken(t *testing.T) {
 	w := httptest.NewRecorder()
 	expectedUser := &data.User{
-		ID:       "test-user",
+		Username: "test-user",
 		Password: "password",
 	}
 	ts := &testStore{
-		getUser: func(id string) (*data.User, error) {
-			if id != expectedUser.ID {
+		getUser: func(username string) (*data.User, error) {
+			if username != expectedUser.Username {
 				t.Error("Unexpected ID")
 			}
 			return &data.User{}, nil
@@ -181,7 +181,7 @@ func TestCreateUserIDTaken(t *testing.T) {
 	ds = ts
 
 	body, err := json.Marshal(&userLoginRequest{
-		UserID:   expectedUser.ID,
+		Username: expectedUser.Username,
 		Password: expectedUser.Password,
 	})
 	if err != nil {

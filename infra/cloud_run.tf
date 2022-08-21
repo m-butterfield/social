@@ -116,7 +116,7 @@ resource "google_cloud_run_service" "social-worker" {
         }
       }
       service_account_name = google_service_account.social_cloud_run.email
-      timeout_seconds = 3600
+      timeout_seconds      = 3600
     }
     metadata {
       annotations = {

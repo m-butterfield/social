@@ -79,7 +79,7 @@ func loggedInUser(c *gin.Context) *data.User {
 }
 
 type userLoginRequest struct {
-	UserID   string `json:"userID"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 

@@ -20,14 +20,14 @@ func TestLoginUser(t *testing.T) {
 		t.Fatal(err)
 	}
 	expectedUser := &data.User{
-		ID:       "test-user",
+		Username: "test-user",
 		Password: string(hashedPW),
 	}
 	tokenID := "12345"
 	expiresAt := time.Now().UTC().Add(10 * time.Minute)
 	ts := &testStore{
-		getUser: func(id string) (*data.User, error) {
-			assert.Equal(t, expectedUser.ID, id)
+		getUser: func(username string) (*data.User, error) {
+			assert.Equal(t, expectedUser.Username, username)
 			return expectedUser, nil
 		},
 		createUser: func(*data.User) error { return nil },
@@ -41,7 +41,7 @@ func TestLoginUser(t *testing.T) {
 	ds = ts
 
 	body, err := json.Marshal(&userLoginRequest{
-		UserID:   expectedUser.ID,
+		Username: expectedUser.Username,
 		Password: "password",
 	})
 	if err != nil {
@@ -67,7 +67,7 @@ func TestLoginUser(t *testing.T) {
 func TestLoginBadUserID(t *testing.T) {
 	w := httptest.NewRecorder()
 	ts := &testStore{
-		getUser: func(id string) (*data.User, error) {
+		getUser: func(username string) (*data.User, error) {
 			return nil, nil
 		},
 		createUser: func(*data.User) error { return nil },
@@ -75,7 +75,7 @@ func TestLoginBadUserID(t *testing.T) {
 	ds = ts
 
 	body, err := json.Marshal(&userLoginRequest{
-		UserID: "blah",
+		Username: "blah",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -102,12 +102,12 @@ func TestLoginBadPassword(t *testing.T) {
 		t.Fatal(err)
 	}
 	expectedUser := &data.User{
-		ID:       "test-user",
+		Username: "test-user",
 		Password: string(hashedPW),
 	}
 	ts := &testStore{
-		getUser: func(id string) (*data.User, error) {
-			assert.Equal(t, expectedUser.ID, id)
+		getUser: func(username string) (*data.User, error) {
+			assert.Equal(t, expectedUser.Username, username)
 			return expectedUser, nil
 		},
 		createUser: func(*data.User) error { return nil },
@@ -115,7 +115,7 @@ func TestLoginBadPassword(t *testing.T) {
 	ds = ts
 
 	body, err := json.Marshal(&userLoginRequest{
-		UserID:   expectedUser.ID,
+		Username: expectedUser.Username,
 		Password: "incorrect",
 	})
 	if err != nil {

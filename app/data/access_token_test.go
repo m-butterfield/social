@@ -14,7 +14,7 @@ func TestCreateAccessToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	user := &User{
-		ID:       "testUser",
+		Username: "testUser",
 		Password: "password",
 	}
 	if err = s.CreateUser(user); err != nil {
@@ -38,7 +38,7 @@ func TestGetAccessToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	user := &User{
-		ID:       "testUser",
+		Username: "testUser",
 		Password: "password",
 	}
 	if err = s.CreateUser(user); err != nil {
@@ -81,7 +81,7 @@ func TestGetAccessTokenExpired(t *testing.T) {
 		t.Fatal(err)
 	}
 	user := &User{
-		ID:       "testUser",
+		Username: "testUser",
 		Password: "password",
 	}
 	err = s.CreateUser(user)
@@ -118,7 +118,7 @@ func TestDeleteAccessToken(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user := &User{ID: "test"}
+	user := &User{Username: "test"}
 	err = s.CreateUser(user)
 	if err != nil {
 		t.Fatal(err)

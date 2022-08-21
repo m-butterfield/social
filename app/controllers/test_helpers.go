@@ -33,7 +33,7 @@ type testStore struct {
 	getPostsCallCount          int
 	getPost                    func(int) (*data.Post, error)
 	getPostCallCount           int
-	getUserPosts               func(string) ([]*data.Post, error)
+	getUserPosts               func(int) ([]*data.Post, error)
 	getUserPostsCallCount      int
 }
 
@@ -42,9 +42,9 @@ func (t *testStore) CreateUser(user *data.User) error {
 	return t.createUser(user)
 }
 
-func (t *testStore) GetUser(id string) (*data.User, error) {
+func (t *testStore) GetUser(username string) (*data.User, error) {
 	t.getUserCallCount += 1
-	return t.getUser(id)
+	return t.getUser(username)
 }
 
 func (t *testStore) CreateAccessToken(user *data.User) (*data.AccessToken, error) {
@@ -85,7 +85,7 @@ func (t *testStore) PublishPost(int, []*data.Image) error {
 	panic("should not be called")
 }
 
-func (t *testStore) GetUserPosts(id string) ([]*data.Post, error) {
+func (t *testStore) GetUserPosts(id int) ([]*data.Post, error) {
 	t.getUserPostsCallCount += 1
 	return t.getUserPosts(id)
 }

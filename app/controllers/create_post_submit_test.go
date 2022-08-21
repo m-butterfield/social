@@ -22,7 +22,7 @@ func TestCreatePostSubmit(t *testing.T) {
 		Body: "post body",
 	}
 	expectedImages := []string{"test.jpg"}
-	expectedUserID := "testUser"
+	expectedUserID := 123
 	ts := &testStore{
 		createPost: func(post *data.Post) error {
 			post.ID = 123
@@ -82,7 +82,7 @@ func TestCreatePostSubmitNoBody(t *testing.T) {
 	ts := &testStore{
 		createPost: func(post *data.Post) error { return nil },
 		getAccessToken: func(string) (*data.AccessToken, error) {
-			return &data.AccessToken{User: &data.User{ID: "testUser"}}, nil
+			return &data.AccessToken{User: &data.User{Username: "testUser"}}, nil
 		},
 	}
 	ds = ts

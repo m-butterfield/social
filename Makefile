@@ -52,6 +52,9 @@ reset-db:
 migrate:
 	go run cmd/migrate/main.go
 
+generate:
+	go run github.com/99designs/gqlgen generate
+
 fmt:
 	go fmt ./...
 	npx eslint app/static/ts/ --fix
@@ -59,6 +62,7 @@ fmt:
 
 run-server: export USE_LOCAL_FS=true
 run-server: export SQL_LOGS=true
+run-server: export GQL_PLAYGROUND=true
 run-server: export WORKER_BASE_URL=http://localhost:8001/
 run-server:
 	go run cmd/server/main.go
