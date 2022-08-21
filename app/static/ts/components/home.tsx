@@ -1,14 +1,10 @@
-import React from "react";
+import {AppContext} from "app";
+import React, {useContext} from "react";
 import Typography from "@mui/material/Typography";
-import {User} from "types";
 
-type HomeProps = {
-  user?: User;
-}
-
-const Home = (props: HomeProps) => {
-  const {user} = props;
-  return <Typography variant="h2">Welcome {user && user.id}</Typography>;
+const Home = () => {
+  const {user} = useContext(AppContext);
+  return <Typography variant="h2">Welcome {user && user.username}</Typography>;
 };
 
 export default Home;

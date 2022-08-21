@@ -1,4 +1,4 @@
-package controllers
+package graph
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -6,7 +6,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/graph/generated"
 	"github.com/m-butterfield/social/app/graph/model"
@@ -15,7 +14,7 @@ import (
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUser) (*data.User, error) {
 	user := data.User{Username: input.Username}
-	if err := ds.CreateUser(&user); err != nil {
+	if err := r.DS.CreateUser(&user); err != nil {
 		return nil, err
 	}
 	return &user, nil

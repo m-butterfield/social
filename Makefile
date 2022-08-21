@@ -54,6 +54,7 @@ migrate:
 
 generate:
 	go run github.com/99designs/gqlgen generate
+	yarn graphql-codegen
 
 fmt:
 	go fmt ./...

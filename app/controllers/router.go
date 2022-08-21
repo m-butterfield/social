@@ -5,6 +5,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"github.com/m-butterfield/social/app/graph"
 	"github.com/m-butterfield/social/app/graph/generated"
 	"github.com/m-butterfield/social/app/lib"
 	"github.com/m-butterfield/social/app/static"
@@ -69,14 +70,22 @@ func makePlayGroundHandler() func(*gin.Context) {
 }
 
 func makeGraphQLHandler() func(*gin.Context) {
-	graphqlHandler := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &Resolver{}}))
+	graphqlHandler := handler.NewDefaultServer(
+		generated.NewExecutableSchema(
+			generated.Config{
+				Resolvers: &graph.Resolver{
+					DS: ds,
+				},
+			},
+		),
+	)
 	return func(c *gin.Context) {
 		graphqlHandler.ServeHTTP(c.Writer, c.Request)
 	}
 }
 
 func ginContextToContextMiddleware(c *gin.Context) {
-	ctx := context.WithValue(c.Request.Context(), "GinContextKey", c)
+	ctx := context.WithValue(c.Request.Context(), "ginContext", c)
 	c.Request = c.Request.WithContext(ctx)
 	c.Next()
 }

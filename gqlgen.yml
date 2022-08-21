@@ -11,8 +11,8 @@ model:
 
 resolver:
   layout: follow-schema
-  dir: app/controllers
-  package: controllers
+  dir: app/graph
+  package: graph
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.

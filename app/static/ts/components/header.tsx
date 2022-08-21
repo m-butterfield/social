@@ -3,16 +3,12 @@ import Container from "@mui/material/Container";
 import Link from "@mui/material/Link";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import React from "react";
-import {User} from "types";
+import {AppContext} from "app";
+import React, {useContext} from "react";
 import {Link as RouterLink} from "react-router-dom";
 
-type HeaderProps = {
-  user?: User;
-}
-
-export const Header = (props: HeaderProps) => {
-  const {user} = props;
+export const Header = () => {
+  const {user} = useContext(AppContext);
   return <AppBar
     position="static"
     color="primary"
