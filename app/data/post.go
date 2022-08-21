@@ -7,9 +7,9 @@ import (
 )
 
 type Post struct {
-	ID          int
-	Body        string
-	UserID      int `gorm:"not null"`
+	ID          int    `json:"-"`
+	Body        string `json:"body"`
+	UserID      int    `gorm:"not null" json:"-"`
 	User        *User
 	CreatedAt   time.Time `gorm:"not null;default:now()"`
 	PublishedAt *time.Time

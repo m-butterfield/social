@@ -6,9 +6,9 @@ import (
 )
 
 type User struct {
-	ID       int
-	Username string `gorm:"type:varchar(64);not null;index:unique"`
-	Password string `gorm:"type:varchar(60);not null"`
+	ID       int    `json:"-"`
+	Username string `gorm:"type:varchar(64);not null;index:unique" json:"username"`
+	Password string `gorm:"type:varchar(60);not null" json:"password"`
 }
 
 func (s *ds) CreateUser(user *User) error {
