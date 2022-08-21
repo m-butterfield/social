@@ -15,7 +15,7 @@ func loginUser(c *gin.Context) {
 		return
 	}
 
-	user, err := ds.GetUser(loginReq.UserID)
+	user, err := ds.GetUser(loginReq.Username)
 	if err != nil {
 		lib.InternalError(err, c)
 		return

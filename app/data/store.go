@@ -42,7 +42,7 @@ type Store interface {
 	GetPost(int) (*Post, error)
 	GetOrCreateImage(string, int, int) (*Image, error)
 	PublishPost(int, []*Image) error
-	GetUserPosts(string) ([]*Post, error)
+	GetUserPosts(int) ([]*Post, error)
 }
 
 type ds struct {

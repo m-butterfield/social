@@ -6,7 +6,8 @@ import (
 )
 
 type User struct {
-	ID       string `gorm:"type:varchar(64)"`
+	ID       int
+	Username string `gorm:"type:varchar(64);not null;index:unique"`
 	Password string `gorm:"type:varchar(60);not null"`
 }
 
@@ -17,9 +18,9 @@ func (s *ds) CreateUser(user *User) error {
 	return nil
 }
 
-func (s *ds) GetUser(id string) (*User, error) {
+func (s *ds) GetUser(username string) (*User, error) {
 	user := &User{}
-	tx := s.db.First(&user, "id = $1", id)
+	tx := s.db.First(&user, "username = $1", username)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, nil

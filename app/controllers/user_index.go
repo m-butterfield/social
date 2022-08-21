@@ -15,7 +15,7 @@ type userPage struct {
 }
 
 func userIndex(c *gin.Context) {
-	user, err := ds.GetUser(c.Param("userID"))
+	user, err := ds.GetUser(c.Param("username"))
 	if err != nil {
 		lib.InternalError(err, c)
 		return

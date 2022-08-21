@@ -16,12 +16,12 @@ func createUser(c *gin.Context) {
 		return
 	}
 
-	if createReq.UserID == "" {
-		c.String(http.StatusBadRequest, "Please provide a user ID")
+	if createReq.Username == "" {
+		c.String(http.StatusBadRequest, "Please provide a user Username")
 		return
 	}
-	if len(createReq.UserID) > 64 {
-		c.String(http.StatusBadRequest, "User ID must be less than 64 characters long")
+	if len(createReq.Username) > 64 {
+		c.String(http.StatusBadRequest, "User Username must be less than 64 characters long")
 		return
 	}
 	if len(createReq.Password) < 8 {
@@ -33,7 +33,7 @@ func createUser(c *gin.Context) {
 		return
 	}
 
-	if exising, err := ds.GetUser(createReq.UserID); err != nil {
+	if exising, err := ds.GetUser(createReq.Username); err != nil {
 		lib.InternalError(err, c)
 		return
 	} else if exising != nil {
@@ -48,7 +48,7 @@ func createUser(c *gin.Context) {
 	}
 
 	user := &data.User{
-		ID:       createReq.UserID,
+		Username: createReq.Username,
 		Password: string(hashedPW),
 	}
 	if err = ds.CreateUser(user); err != nil {

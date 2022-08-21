@@ -31,7 +31,7 @@ func router() (*gin.Engine, error) {
 	app := r.Group("/app")
 	app.Use(authRequired)
 	app.GET("/create_post", createPost)
-	app.GET("/user/:userID", userIndex)
+	app.GET("/user/:username", userIndex)
 
 	api := r.Group("/api")
 	app.Use(authRequired)
