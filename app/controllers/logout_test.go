@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/m-butterfield/social/app/data"
+	"github.com/m-butterfield/social/app/lib"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -27,7 +28,7 @@ func TestLogout(t *testing.T) {
 		t.Fatal(err)
 	}
 	req.AddCookie(&http.Cookie{
-		Name:  sessionTokenName,
+		Name:  lib.SessionTokenName,
 		Value: tokenID,
 	})
 

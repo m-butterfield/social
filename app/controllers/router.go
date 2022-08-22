@@ -85,7 +85,7 @@ func makeGraphQLHandler() func(*gin.Context) {
 }
 
 func ginContextToContextMiddleware(c *gin.Context) {
-	ctx := context.WithValue(c.Request.Context(), "ginContext", c)
+	ctx := context.WithValue(c.Request.Context(), lib.GinContextKey, c)
 	c.Request = c.Request.WithContext(ctx)
 	c.Next()
 }

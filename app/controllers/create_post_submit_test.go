@@ -58,7 +58,7 @@ func TestCreatePostSubmit(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.AddCookie(&http.Cookie{Name: sessionTokenName})
+	req.AddCookie(&http.Cookie{Name: lib.SessionTokenName})
 	req.Header.Add("Content-Type", "application/json")
 	testRouter().ServeHTTP(w, req)
 
@@ -102,7 +102,7 @@ func TestCreatePostSubmitNoBody(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.AddCookie(&http.Cookie{Name: sessionTokenName})
+	req.AddCookie(&http.Cookie{Name: lib.SessionTokenName})
 	req.Header.Add("Content-Type", "application/json")
 	testRouter().ServeHTTP(w, req)
 
@@ -130,7 +130,7 @@ func TestCreatePostSubmitBodyTooLong(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.AddCookie(&http.Cookie{Name: sessionTokenName})
+	req.AddCookie(&http.Cookie{Name: lib.SessionTokenName})
 	req.Header.Add("Content-Type", "application/json")
 	testRouter().ServeHTTP(w, req)
 

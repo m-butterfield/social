@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	templatePath     = "templates/"
-	sessionTokenName = "SessionToken"
+	templatePath = "templates/"
 )
 
 var (
@@ -90,7 +89,7 @@ func cookieLogin(w http.ResponseWriter, user *data.User) error {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    sessionTokenName,
+		Name:    lib.SessionTokenName,
 		Value:   token.ID,
 		Expires: token.ExpiresAt,
 	})
@@ -99,14 +98,14 @@ func cookieLogin(w http.ResponseWriter, user *data.User) error {
 
 func unsetSessionCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:    sessionTokenName,
+		Name:    lib.SessionTokenName,
 		Value:   "",
 		Expires: time.Unix(0, 0),
 	})
 }
 
 func getSessionCookie(c *gin.Context) (*http.Cookie, error) {
-	cookie, err := c.Request.Cookie(sessionTokenName)
+	cookie, err := c.Request.Cookie(lib.SessionTokenName)
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
 			return nil, nil

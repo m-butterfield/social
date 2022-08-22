@@ -5,20 +5,44 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
-
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/graph/generated"
 	"github.com/m-butterfield/social/app/graph/model"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUser) (*data.User, error) {
-	user := data.User{Username: input.Username}
-	if err := r.DS.CreateUser(&user); err != nil {
+	if input.Username == "" {
+		return nil, errors.New("please provide a username")
+	}
+	if len(input.Username) > 64 {
+		return nil, errors.New("username must be less than 64 characters long")
+	}
+	if len(input.Password) < 8 {
+		return nil, errors.New("password must be at least 8 characters long")
+	}
+	if len(input.Password) > 64 {
+		return nil, errors.New("password must be less than 64 characters long")
+	}
+
+	hashedPW, err := bcrypt.GenerateFromPassword([]byte(input.Password), 8)
+	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	user := &data.User{
+		Username: input.Username,
+		Password: string(hashedPW),
+	}
+	if err = r.DS.CreateUser(user); err != nil {
+		return nil, err
+	}
+	if err = cookieLogin(ctx, r.DS, user); err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 // Posts is the resolver for the posts field.

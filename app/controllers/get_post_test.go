@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"github.com/m-butterfield/social/app/data"
+	"github.com/m-butterfield/social/app/lib"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
@@ -30,7 +31,7 @@ func TestGetPost(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.AddCookie(&http.Cookie{Name: sessionTokenName})
+	req.AddCookie(&http.Cookie{Name: lib.SessionTokenName})
 	testRouter().ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
@@ -66,7 +67,7 @@ func TestGetPostDoesntExist(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.AddCookie(&http.Cookie{Name: sessionTokenName})
+	req.AddCookie(&http.Cookie{Name: lib.SessionTokenName})
 	testRouter().ServeHTTP(w, req)
 
 	assert.Equal(t, 404, w.Code)
@@ -89,7 +90,7 @@ func TestGetPostBadID(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.AddCookie(&http.Cookie{Name: sessionTokenName})
+	req.AddCookie(&http.Cookie{Name: lib.SessionTokenName})
 	testRouter().ServeHTTP(w, req)
 
 	assert.Equal(t, 400, w.Code)

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/m-butterfield/social/app/data"
+	"github.com/m-butterfield/social/app/lib"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +19,7 @@ func TestUserIndex(t *testing.T) {
 		t.Fatal(err)
 	}
 	req.AddCookie(&http.Cookie{
-		Name:  sessionTokenName,
+		Name:  lib.SessionTokenName,
 		Value: "1234",
 	})
 	ts := &data.TestStore{
@@ -51,7 +52,7 @@ func TestUserIndexUserDoesNotExist(t *testing.T) {
 		t.Fatal(err)
 	}
 	req.AddCookie(&http.Cookie{
-		Name:  sessionTokenName,
+		Name:  lib.SessionTokenName,
 		Value: "1234",
 	})
 	ds = &data.TestStore{
