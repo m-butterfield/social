@@ -12,11 +12,11 @@ import (
 func TestLogout(t *testing.T) {
 	w := httptest.NewRecorder()
 	tokenID := "1234"
-	ts := &testStore{
-		getAccessToken: func(s string) (*data.AccessToken, error) {
+	ts := &data.TestStore{
+		TestGetAccessToken: func(s string) (*data.AccessToken, error) {
 			return &data.AccessToken{ID: tokenID}, nil
 		},
-		deleteAccessToken: func(id string) error {
+		TestDeleteAccessToken: func(id string) error {
 			assert.Equal(t, id, tokenID)
 			return nil
 		},
@@ -34,7 +34,7 @@ func TestLogout(t *testing.T) {
 	testRouter().ServeHTTP(w, req)
 
 	assert.Equal(t, 302, w.Code)
-	assert.Equal(t, ts.deleteAccessTokenCallCount, 1)
+	assert.Equal(t, ts.DeleteAccessTokenCallCount, 1)
 	cookies := w.Result().Cookies()
 	assert.Equal(t, len(cookies), 1)
 	sessionCookie := cookies[0]

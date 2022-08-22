@@ -16,11 +16,11 @@ func TestGetPost(t *testing.T) {
 	expectedPost := &data.Post{
 		ID: 123,
 	}
-	ts := &testStore{
-		getPost: func(id int) (*data.Post, error) {
+	ts := &data.TestStore{
+		TestGetPost: func(id int) (*data.Post, error) {
 			return expectedPost, nil
 		},
-		getAccessToken: func(string) (*data.AccessToken, error) {
+		TestGetAccessToken: func(string) (*data.AccessToken, error) {
 			return &data.AccessToken{User: expectedPost.User}, nil
 		},
 	}
@@ -34,7 +34,7 @@ func TestGetPost(t *testing.T) {
 	testRouter().ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, 1, ts.getPostCallCount)
+	assert.Equal(t, 1, ts.GetPostCallCount)
 	respBody, err := io.ReadAll(w.Body)
 	if err != nil {
 		t.Fatal(err)
@@ -43,7 +43,7 @@ func TestGetPost(t *testing.T) {
 	if err = json.Unmarshal(respBody, result); err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, *result, *expectedPost)
+	assert.Equal(t, *expectedPost, *result)
 }
 
 func TestGetPostDoesntExist(t *testing.T) {
@@ -52,11 +52,11 @@ func TestGetPostDoesntExist(t *testing.T) {
 	expectedPost := &data.Post{
 		ID: 123,
 	}
-	ts := &testStore{
-		getPost: func(id int) (*data.Post, error) {
+	ts := &data.TestStore{
+		TestGetPost: func(id int) (*data.Post, error) {
 			return nil, nil
 		},
-		getAccessToken: func(string) (*data.AccessToken, error) {
+		TestGetAccessToken: func(string) (*data.AccessToken, error) {
 			return &data.AccessToken{User: expectedPost.User}, nil
 		},
 	}
@@ -78,8 +78,8 @@ func TestGetPostBadID(t *testing.T) {
 	expectedPost := &data.Post{
 		ID: 123,
 	}
-	ts := &testStore{
-		getAccessToken: func(string) (*data.AccessToken, error) {
+	ts := &data.TestStore{
+		TestGetAccessToken: func(string) (*data.AccessToken, error) {
 			return &data.AccessToken{User: expectedPost.User}, nil
 		},
 	}

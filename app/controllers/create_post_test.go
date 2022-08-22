@@ -18,8 +18,8 @@ func TestCreatePost(t *testing.T) {
 		Name:  sessionTokenName,
 		Value: "1234",
 	})
-	ds = &testStore{
-		getAccessToken: func(id string) (*data.AccessToken, error) {
+	ds = &data.TestStore{
+		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
 			return &data.AccessToken{ID: "1234"}, nil
 		},
 	}

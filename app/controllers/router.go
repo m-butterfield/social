@@ -5,8 +5,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
-	"github.com/m-butterfield/social/app/graph"
 	"github.com/m-butterfield/social/app/graph/generated"
+	"github.com/m-butterfield/social/app/graph/resolvers"
 	"github.com/m-butterfield/social/app/lib"
 	"github.com/m-butterfield/social/app/static"
 	"net/http"
@@ -73,7 +73,7 @@ func makeGraphQLHandler() func(*gin.Context) {
 	graphqlHandler := handler.NewDefaultServer(
 		generated.NewExecutableSchema(
 			generated.Config{
-				Resolvers: &graph.Resolver{
+				Resolvers: &resolvers.Resolver{
 					DS: ds,
 				},
 			},

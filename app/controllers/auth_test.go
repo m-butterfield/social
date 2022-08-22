@@ -14,8 +14,8 @@ func TestAuthGoodToken(t *testing.T) {
 	w := httptest.NewRecorder()
 	tokenID := "1234"
 	user := &data.User{}
-	ts := &testStore{
-		getAccessToken: func(id string) (*data.AccessToken, error) {
+	ts := &data.TestStore{
+		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
 			return &data.AccessToken{ID: tokenID, User: user}, nil
 		},
 	}
@@ -42,8 +42,8 @@ func TestAuthGoodToken(t *testing.T) {
 func TestAuthBadToken(t *testing.T) {
 	w := httptest.NewRecorder()
 	tokenID := "1234"
-	ts := &testStore{
-		getAccessToken: func(id string) (*data.AccessToken, error) {
+	ts := &data.TestStore{
+		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
 			return nil, nil
 		},
 	}

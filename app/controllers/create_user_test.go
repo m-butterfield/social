@@ -20,9 +20,9 @@ func TestCreateUser(t *testing.T) {
 	}
 	tokenID := "12345"
 	expiresAt := time.Now().UTC().Add(10 * time.Minute)
-	ts := &testStore{
-		getUser: func(string) (*data.User, error) { return nil, nil },
-		createUser: func(user *data.User) error {
+	ts := &data.TestStore{
+		TestGetUser: func(string) (*data.User, error) { return nil, nil },
+		TestCreateUser: func(user *data.User) error {
 			assert.Equal(t, len(user.Password), 60)
 			user.Password = ""
 			if *user != *expectedUser {
@@ -30,7 +30,7 @@ func TestCreateUser(t *testing.T) {
 			}
 			return nil
 		},
-		createAccessToken: func(user *data.User) (*data.AccessToken, error) {
+		TestCreateAccessToken: func(user *data.User) (*data.AccessToken, error) {
 			if *user != *expectedUser {
 				t.Error("Unexpected user")
 			}
@@ -54,8 +54,8 @@ func TestCreateUser(t *testing.T) {
 	testRouter().ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, ts.createUserCallCount, 1)
-	assert.Equal(t, ts.createAccessTokenCallCount, 1)
+	assert.Equal(t, ts.CreateUserCallCount, 1)
+	assert.Equal(t, ts.CreateAccessTokenCallCount, 1)
 	cookies := w.Result().Cookies()
 	assert.Equal(t, len(cookies), 1)
 	sessionCookie := cookies[0]
@@ -115,7 +115,9 @@ func TestCreateUserPasswordTooShort(t *testing.T) {
 		Username: "test-user",
 		Password: "pass",
 	}
-	ts := &testStore{getUser: func(string) (*data.User, error) { return nil, nil }}
+	ts := &data.TestStore{
+		TestGetUser: func(string) (*data.User, error) { return nil, nil },
+	}
 	ds = ts
 
 	body, err := json.Marshal(&userLoginRequest{
@@ -170,8 +172,8 @@ func TestCreateUserIDTaken(t *testing.T) {
 		Username: "test-user",
 		Password: "password",
 	}
-	ts := &testStore{
-		getUser: func(username string) (*data.User, error) {
+	ts := &data.TestStore{
+		TestGetUser: func(username string) (*data.User, error) {
 			if username != expectedUser.Username {
 				t.Error("Unexpected ID")
 			}
@@ -200,5 +202,5 @@ func TestCreateUserIDTaken(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.Equal(t, "Username already exists", string(respBody))
-	assert.Equal(t, ts.getUserCallCount, 1)
+	assert.Equal(t, ts.GetUserCallCount, 1)
 }

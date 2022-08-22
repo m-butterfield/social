@@ -7,7 +7,7 @@ import (
 )
 
 type Post struct {
-	ID          int    `json:"-"`
+	ID          int    `json:"id"`
 	Body        string `json:"body"`
 	UserID      int    `gorm:"not null" json:"-"`
 	User        *User

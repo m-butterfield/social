@@ -21,15 +21,15 @@ func TestUserIndex(t *testing.T) {
 		Name:  sessionTokenName,
 		Value: "1234",
 	})
-	ts := &testStore{
-		getUser: func(username string) (*data.User, error) {
+	ts := &data.TestStore{
+		TestGetUser: func(username string) (*data.User, error) {
 			assert.Equal(t, testUser.Username, username)
 			return testUser, nil
 		},
-		getAccessToken: func(id string) (*data.AccessToken, error) {
+		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
 			return &data.AccessToken{ID: "1234"}, nil
 		},
-		getUserPosts: func(id int) ([]*data.Post, error) {
+		TestGetUserPosts: func(id int) ([]*data.Post, error) {
 			assert.Equal(t, testUser.ID, id)
 			return []*data.Post{{
 				Body: "hello.",
@@ -40,8 +40,8 @@ func TestUserIndex(t *testing.T) {
 	testRouter().ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, 1, ts.getUserCallCount)
-	assert.Equal(t, 1, ts.getUserPostsCallCount)
+	assert.Equal(t, 1, ts.GetUserCallCount)
+	assert.Equal(t, 1, ts.GetUserPostsCallCount)
 }
 
 func TestUserIndexUserDoesNotExist(t *testing.T) {
@@ -54,11 +54,11 @@ func TestUserIndexUserDoesNotExist(t *testing.T) {
 		Name:  sessionTokenName,
 		Value: "1234",
 	})
-	ds = &testStore{
-		getUser: func(username string) (*data.User, error) {
+	ds = &data.TestStore{
+		TestGetUser: func(username string) (*data.User, error) {
 			return nil, nil
 		},
-		getAccessToken: func(id string) (*data.AccessToken, error) {
+		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
 			return &data.AccessToken{ID: "1234"}, nil
 		},
 	}

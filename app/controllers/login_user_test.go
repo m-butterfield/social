@@ -25,13 +25,13 @@ func TestLoginUser(t *testing.T) {
 	}
 	tokenID := "12345"
 	expiresAt := time.Now().UTC().Add(10 * time.Minute)
-	ts := &testStore{
-		getUser: func(username string) (*data.User, error) {
+	ts := &data.TestStore{
+		TestGetUser: func(username string) (*data.User, error) {
 			assert.Equal(t, expectedUser.Username, username)
 			return expectedUser, nil
 		},
-		createUser: func(*data.User) error { return nil },
-		createAccessToken: func(user *data.User) (*data.AccessToken, error) {
+		TestCreateUser: func(*data.User) error { return nil },
+		TestCreateAccessToken: func(user *data.User) (*data.AccessToken, error) {
 			if *user != *expectedUser {
 				t.Error("Unexpected user")
 			}
@@ -55,8 +55,8 @@ func TestLoginUser(t *testing.T) {
 	testRouter().ServeHTTP(w, req)
 
 	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, ts.getUserCallCount, 1)
-	assert.Equal(t, ts.createAccessTokenCallCount, 1)
+	assert.Equal(t, ts.GetUserCallCount, 1)
+	assert.Equal(t, ts.CreateAccessTokenCallCount, 1)
 	cookies := w.Result().Cookies()
 	assert.Equal(t, len(cookies), 1)
 	sessionCookie := cookies[0]
@@ -66,11 +66,11 @@ func TestLoginUser(t *testing.T) {
 
 func TestLoginBadUserID(t *testing.T) {
 	w := httptest.NewRecorder()
-	ts := &testStore{
-		getUser: func(username string) (*data.User, error) {
+	ts := &data.TestStore{
+		TestGetUser: func(username string) (*data.User, error) {
 			return nil, nil
 		},
-		createUser: func(*data.User) error { return nil },
+		TestCreateUser: func(*data.User) error { return nil },
 	}
 	ds = ts
 
@@ -105,12 +105,12 @@ func TestLoginBadPassword(t *testing.T) {
 		Username: "test-user",
 		Password: string(hashedPW),
 	}
-	ts := &testStore{
-		getUser: func(username string) (*data.User, error) {
+	ts := &data.TestStore{
+		TestGetUser: func(username string) (*data.User, error) {
 			assert.Equal(t, expectedUser.Username, username)
 			return expectedUser, nil
 		},
-		createUser: func(*data.User) error { return nil },
+		TestCreateUser: func(*data.User) error { return nil },
 	}
 	ds = ts
 
