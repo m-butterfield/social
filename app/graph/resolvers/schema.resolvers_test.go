@@ -8,6 +8,7 @@ import (
 	"github.com/m-butterfield/social/app/lib"
 	"github.com/stretchr/testify/assert"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -72,28 +73,17 @@ func TestCreateUserBlank(t *testing.T) {
 	assert.Equal(t, "please provide a username", err.Error())
 }
 
-//func TestCreateUserTooLong(t *testing.T) {
-//	w := httptest.NewRecorder()
-//	body, err := json.Marshal(&userLoginRequest{
-//		Username: strings.Repeat("a", 65),
-//	})
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//	req, err := http.NewRequest("POST", "/create_user", bytes.NewReader(body))
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//	req.Header.Add("Content-Type", "application/json")
-//	testRouter().ServeHTTP(w, req)
-//
-//	assert.Equal(t, 400, w.Code)
-//	respBody, err := io.ReadAll(w.Body)
-//	if err != nil {
-//		t.Fatal(err)
-//	}
-//	assert.Equal(t, "User Username must be less than 64 characters long", string(respBody))
-//}
+func TestCreateUserTooLong(t *testing.T) {
+	r := Resolver{}
+	_, err := r.Mutation().CreateUser(context.Background(), model.CreateUser{
+		Username: strings.Repeat("a", 65),
+		Password: "password",
+	})
+	if err == nil {
+		t.Fatal("Expected error")
+	}
+	assert.Equal(t, "username must be less than 64 characters long", err.Error())
+}
 
 //func TestCreateUserPasswordTooShort(t *testing.T) {
 //	w := httptest.NewRecorder()
