@@ -2,7 +2,7 @@ import {gql, useMutation} from "@apollo/client";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import {AppContext} from "app";
-import Signup from "components/signup";
+import Signup from "app/login/Signup";
 import {Mutation, MutationLoginArgs} from "graphql/types";
 import React, {useContext, useState} from "react";
 import Box from "@mui/material/Box";

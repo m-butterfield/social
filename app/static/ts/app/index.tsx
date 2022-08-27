@@ -3,22 +3,21 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Typography from "@mui/material/Typography";
-import {Header} from "components/header";
+import AppRoutes from "app/AppRoutes";
+import {Header} from "app/Header";
 import {Query, User} from "graphql/types";
 import React, {createContext, useContext, useEffect, useState} from "react";
 import CssBaseline from "@mui/material/CssBaseline";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
-import {theme} from "theme";
+import {createRoot} from "react-dom/client";
+import {BrowserRouter} from "react-router-dom";
+import {theme} from "app/theme";
 
-export type AppState = {
+type AppState = {
   user: User | null;
   setUser: (user: User) => void;
 }
 
 export const AppContext = createContext<AppState>(null);
-
-const Home = React.lazy(() => import("components/home"));
-const Login = React.lazy(() => import("components/login"));
 
 const client = new ApolloClient({
   uri: "http://localhost:8000/graphql/query",
@@ -26,7 +25,7 @@ const client = new ApolloClient({
   credentials: "same-origin",
 });
 
-export const App = () => {
+const App = () => {
   const [stateUser, setUser] = useState<User | null>(null);
   const state = {
     user: stateUser,
@@ -41,7 +40,6 @@ export const App = () => {
     </ApolloProvider>
   </AppContext.Provider>;
 };
-
 
 const ME = gql`
   query me {
@@ -65,28 +63,15 @@ const Main = () => {
         <Header />
         <Container>
           <Box sx={{my: 2}}>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <React.Suspense fallback={<>...</>}>
-                    <Home />
-                  </React.Suspense>
-                }
-              />
-              <Route
-                path="login"
-                element={
-                  <React.Suspense fallback={<>...</>}>
-                    <Login />
-                  </React.Suspense>
-                }
-              />
-              <Route path="*" element={<>not found...</>} />
-            </Routes>
+            <AppRoutes />
           </Box>
         </Container>
       </BrowserRouter>
     }
   </>;
 };
+
+const container = document.getElementById("root");
+const root = createRoot(container);
+
+root.render(<App />);

@@ -31,14 +31,25 @@ export const Header = () => {
         </Typography>
         <nav>
           {user ?
-            <Link
-              underline="hover"
-              color="text.primary"
-              onClick={() => logout().then(() => setUser(null))}
-              sx={{my: 1, mx: 1.5}}
-            >
-            logout
-            </Link>
+            <>
+              <Link
+                component={RouterLink}
+                underline="hover"
+                color="text.primary"
+                to="/create_post"
+                sx={{my: 1, mx: 1.5}}
+              >
+                create post
+              </Link>
+              <Link
+                underline="hover"
+                color="text.primary"
+                onClick={() => logout().then(() => setUser(null))}
+                sx={{my: 1, mx: 1.5}}
+              >
+              logout
+              </Link>
+            </>
             :
             <Link
               component={RouterLink}
