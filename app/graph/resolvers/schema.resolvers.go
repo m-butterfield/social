@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/graph/generated"
 	"github.com/m-butterfield/social/app/graph/model"
@@ -14,7 +15,7 @@ import (
 )
 
 // CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUser) (*data.User, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreds) (*data.User, error) {
 	if input.Username == "" {
 		return nil, errors.New("please provide a username")
 	}
@@ -43,6 +44,11 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 		return nil, err
 	}
 	return user, nil
+}
+
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, input model.UserCreds) (*data.User, error) {
+	panic(fmt.Errorf("not implemented: Login - login"))
 }
 
 // Posts is the resolver for the posts field.

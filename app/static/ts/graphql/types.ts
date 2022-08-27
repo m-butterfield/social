@@ -12,19 +12,20 @@ export type Scalars = {
   Float: number;
 };
 
-export type CreateUser = {
-  password: Scalars['String'];
-  username: Scalars['String'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   createUser: User;
+  login: User;
 };
 
 
 export type MutationCreateUserArgs = {
-  input: CreateUser;
+  input: UserCreds;
+};
+
+
+export type MutationLoginArgs = {
+  input: UserCreds;
 };
 
 export type Post = {
@@ -40,5 +41,10 @@ export type Query = {
 
 export type User = {
   __typename?: 'User';
+  username: Scalars['String'];
+};
+
+export type UserCreds = {
+  password: Scalars['String'];
   username: Scalars['String'];
 };

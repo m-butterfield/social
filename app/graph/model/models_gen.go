@@ -2,7 +2,7 @@
 
 package model
 
-type CreateUser struct {
+type UserCreds struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }

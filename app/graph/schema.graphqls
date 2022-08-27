@@ -11,11 +11,12 @@ type Query {
   posts: [Post!]!
 }
 
-input CreateUser {
+input UserCreds {
   username: String!
   password: String!
 }
 
 type Mutation {
-  createUser(input: CreateUser!): User!
+  createUser(input: UserCreds!): User!
+  login(input: UserCreds!): User!
 }
