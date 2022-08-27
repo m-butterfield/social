@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/social/app/data"
+	"github.com/m-butterfield/social/app/lib"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -15,7 +16,7 @@ func TestUserInContext(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	c, _ := gin.CreateTestContext(w)
 	c.Request, _ = http.NewRequest("GET", "/", nil)
-	c.Set("user", user)
+	c.Set(lib.UserContextKey, user)
 
 	authRequired(c)
 

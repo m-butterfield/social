@@ -1,0 +1,8 @@
+input SignedUploadInput {
+  fileName: String!
+  contentType: String!
+}
+
+extend type Mutation {
+  signedUploadURL(input: SignedUploadInput!): String!
+}

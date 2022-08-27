@@ -12,11 +12,23 @@ export type Scalars = {
   Float: number;
 };
 
+export type CreatePostInput = {
+  body: Scalars['String'];
+  images: Array<Scalars['String']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createPost: Post;
   createUser: User;
   login: User;
   logout: Scalars['Boolean'];
+  signedUploadURL: Scalars['String'];
+};
+
+
+export type MutationCreatePostArgs = {
+  input: CreatePostInput;
 };
 
 
@@ -29,6 +41,11 @@ export type MutationLoginArgs = {
   input: UserCreds;
 };
 
+
+export type MutationSignedUploadUrlArgs = {
+  input: SignedUploadInput;
+};
+
 export type Post = {
   __typename?: 'Post';
   body: Scalars['String'];
@@ -38,7 +55,11 @@ export type Post = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
-  posts: Array<Post>;
+};
+
+export type SignedUploadInput = {
+  contentType: Scalars['String'];
+  fileName: Scalars['String'];
 };
 
 export type User = {

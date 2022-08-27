@@ -66,7 +66,7 @@ func makeBasePage() *basePage {
 }
 
 func loggedInUser(c *gin.Context) *data.User {
-	result, exists := c.Get("user")
+	result, exists := c.Get(lib.UserContextKey)
 	if !exists {
 		return nil
 	}

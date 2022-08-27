@@ -1,15 +1,14 @@
-package controllers
+package resolvers
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
+	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/social/app/data"
+	"github.com/m-butterfield/social/app/graph/model"
 	"github.com/m-butterfield/social/app/lib"
 	"github.com/m-butterfield/social/app/tasks"
 	"github.com/stretchr/testify/assert"
 	cloudtask "google.golang.org/genproto/googleapis/cloud/tasks/v2"
-	"io"
-	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -17,7 +16,6 @@ import (
 
 func TestCreatePostSubmit(t *testing.T) {
 	w := httptest.NewRecorder()
-
 	expectedPost := &data.Post{
 		ID:   123,
 		Body: "post body",
@@ -35,7 +33,6 @@ func TestCreatePostSubmit(t *testing.T) {
 			return &data.AccessToken{User: &data.User{ID: expectedUserID}}, nil
 		},
 	}
-	ds = ts
 	ttc := &tasks.TestTaskCreator{TestCreateTask: func(taskName string, queueName string, body interface{}) (*cloudtask.Task, error) {
 		assert.Equal(t, taskName, "publish_post")
 		assert.Equal(t, queueName, "social-publish-post")
@@ -45,33 +42,21 @@ func TestCreatePostSubmit(t *testing.T) {
 		})
 		return nil, nil
 	}}
-	tc = ttc
+	r := Resolver{DS: ts, TC: ttc}
 
-	body, err := json.Marshal(&createPostRequest{
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	gctx.Set(lib.UserContextKey, &data.User{ID: expectedUserID})
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
+	result, err := r.Mutation().CreatePost(ctx, model.CreatePostInput{
 		Body:   expectedPost.Body,
 		Images: expectedImages,
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	req, err := http.NewRequest("POST", "/api/create_post", bytes.NewReader(body))
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.AddCookie(&http.Cookie{Name: lib.SessionTokenName})
-	req.Header.Add("Content-Type", "application/json")
-	testRouter().ServeHTTP(w, req)
+	assert.Nil(t, err)
+	assert.NotNil(t, result)
 
-	assert.Equal(t, 201, w.Code)
 	assert.Equal(t, 1, ts.CreatePostCallCount)
-	respBody, err := io.ReadAll(w.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-	result := &data.Post{}
-	if err = json.Unmarshal(respBody, result); err != nil {
-		t.Fatal(err)
-	}
 	assert.Equal(t, result.ID, expectedPost.ID)
 	assert.Equal(t, result.PublishedAt, expectedPost.PublishedAt)
 	assert.Equal(t, ttc.CreateTaskCallCount, 1)
@@ -79,65 +64,51 @@ func TestCreatePostSubmit(t *testing.T) {
 
 func TestCreatePostSubmitNoBody(t *testing.T) {
 	w := httptest.NewRecorder()
-
 	ts := &data.TestStore{
 		TestCreatePost: func(post *data.Post) error { return nil },
 		TestGetAccessToken: func(string) (*data.AccessToken, error) {
 			return &data.AccessToken{User: &data.User{Username: "testUser"}}, nil
 		},
 	}
-	ds = ts
 	ttc := &tasks.TestTaskCreator{TestCreateTask: func(s string, s2 string, i interface{}) (*cloudtask.Task, error) {
 		return nil, nil
 	}}
-	tc = ttc
+	r := Resolver{DS: ts, TC: ttc}
 
-	body, err := json.Marshal(&createPostRequest{
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	gctx.Set(lib.UserContextKey, &data.User{ID: 123})
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
+	result, err := r.Mutation().CreatePost(ctx, model.CreatePostInput{
 		Images: []string{"test.jpg"},
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	req, err := http.NewRequest("POST", "/api/create_post", bytes.NewReader(body))
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.AddCookie(&http.Cookie{Name: lib.SessionTokenName})
-	req.Header.Add("Content-Type", "application/json")
-	testRouter().ServeHTTP(w, req)
-
-	assert.Equal(t, 201, w.Code)
+	assert.Nil(t, err)
+	assert.NotNil(t, result)
 }
 
 func TestCreatePostSubmitBodyTooLong(t *testing.T) {
 	w := httptest.NewRecorder()
-
 	ts := &data.TestStore{
+		TestCreatePost: func(post *data.Post) error { return nil },
 		TestGetAccessToken: func(string) (*data.AccessToken, error) {
-			return &data.AccessToken{}, nil
+			return &data.AccessToken{User: &data.User{Username: "testUser"}}, nil
 		},
 	}
-	ds = ts
+	ttc := &tasks.TestTaskCreator{TestCreateTask: func(s string, s2 string, i interface{}) (*cloudtask.Task, error) {
+		return nil, nil
+	}}
+	r := Resolver{DS: ts, TC: ttc}
 
-	body, err := json.Marshal(&createPostRequest{
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	gctx.Set(lib.UserContextKey, &data.User{ID: 123})
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
+	result, err := r.Mutation().CreatePost(ctx, model.CreatePostInput{
 		Body:   strings.Repeat("a", 4097),
 		Images: []string{"test.jpg"},
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	req, err := http.NewRequest("POST", "/api/create_post", bytes.NewReader(body))
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.AddCookie(&http.Cookie{Name: lib.SessionTokenName})
-	req.Header.Add("Content-Type", "application/json")
-	testRouter().ServeHTTP(w, req)
-
-	assert.Equal(t, 400, w.Code)
-	respBody, err := io.ReadAll(w.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-	assert.Equal(t, "Post body too long (max 4096 characters)", string(respBody))
+	assert.Equal(t, "post body too long (max 4096 characters)", err.Error())
+	assert.Nil(t, result)
 }

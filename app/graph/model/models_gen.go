@@ -2,6 +2,16 @@
 
 package model
 
+type CreatePostInput struct {
+	Body   string   `json:"body"`
+	Images []string `json:"images"`
+}
+
+type SignedUploadInput struct {
+	FileName    string `json:"fileName"`
+	ContentType string `json:"contentType"`
+}
+
 type UserCreds struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

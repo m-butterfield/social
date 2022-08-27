@@ -2,10 +2,6 @@ type User {
   username: String!
 }
 
-type Query {
-  me: User
-}
-
 input UserCreds {
   username: String!
   password: String!
@@ -15,4 +11,8 @@ type Mutation {
   createUser(input: UserCreds!): User!
   login(input: UserCreds!): User!
   logout: Boolean!
+}
+
+type Query {
+  me: User
 }

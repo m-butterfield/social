@@ -51,7 +51,7 @@ func loggedInUser(ctx context.Context) (*data.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	result, exists := gctx.Get("user")
+	result, exists := gctx.Get(lib.UserContextKey)
 	if !exists {
 		return nil, nil
 	}
@@ -83,4 +83,8 @@ func unsetSessionCookie(w http.ResponseWriter) {
 func internalError(err error) error {
 	log.Println(err)
 	return errors.New("internal system error")
+}
+
+func unauthorizedError() error {
+	return errors.New("unauthorized")
 }

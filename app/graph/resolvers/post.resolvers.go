@@ -5,12 +5,43 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
-
+	"errors"
 	"github.com/m-butterfield/social/app/data"
+	"github.com/m-butterfield/social/app/graph/model"
+	"github.com/m-butterfield/social/app/lib"
 )
 
-// Posts is the resolver for the posts field.
-func (r *queryResolver) Posts(ctx context.Context) ([]*data.Post, error) {
-	panic(fmt.Errorf("not implemented: Posts - posts"))
+// CreatePost is the resolver for the createPost field.
+func (r *mutationResolver) CreatePost(ctx context.Context, input model.CreatePostInput) (*data.Post, error) {
+	user, err := loggedInUser(ctx)
+	if err != nil {
+		return nil, internalError(err)
+	}
+	if user == nil {
+		return nil, unauthorizedError()
+	}
+
+	if len(input.Images) == 0 {
+		return nil, errors.New("no images provided")
+	}
+	if len(input.Body) > 4096 {
+		return nil, errors.New("post body too long (max 4096 characters)")
+	}
+
+	post := &data.Post{
+		Body:   input.Body,
+		UserID: user.ID,
+	}
+	if err = r.DS.CreatePost(post); err != nil {
+		return nil, internalError(err)
+	}
+
+	if _, err := r.TC.CreateTask("publish_post", "social-publish-post", &lib.PublishPostRequest{
+		PostID: post.ID,
+		Images: input.Images,
+	}); err != nil {
+		return nil, internalError(err)
+	}
+
+	return post, nil
 }

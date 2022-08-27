@@ -23,5 +23,5 @@ func auth(c *gin.Context) {
 		unsetSessionCookie(c.Writer)
 		return
 	}
-	c.Set("user", token.User)
+	c.Set(lib.UserContextKey, token.User)
 }

@@ -6,5 +6,6 @@ const (
 	ProjectID        = "mattbutterfield"
 	UploadsPrefix    = "uploads/"
 	GinContextKey    = "GinContext"
+	UserContextKey   = "user"
 	SessionTokenName = "SessionToken"
 )

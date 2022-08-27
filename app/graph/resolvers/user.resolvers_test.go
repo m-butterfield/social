@@ -66,7 +66,7 @@ func TestCreateUser(t *testing.T) {
 func TestCreateUserBlank(t *testing.T) {
 	r := Resolver{}
 	_, err := r.Mutation().CreateUser(context.Background(), model.UserCreds{
-		Username: "",
+		Username: " ",
 		Password: "password",
 	})
 	if err == nil {
@@ -170,7 +170,7 @@ func TestLoginUser(t *testing.T) {
 	gctx, _ := gin.CreateTestContext(w)
 	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 	result, err := r.Mutation().Login(ctx, model.UserCreds{
-		Username: expectedUser.Username,
+		Username: " " + expectedUser.Username,
 		Password: "password",
 	})
 	assert.NotNil(t, result)

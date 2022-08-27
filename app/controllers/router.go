@@ -24,7 +24,6 @@ func router() (*gin.Engine, error) {
 
 	staticFS := http.FS(static.FS{})
 	fileServer := http.FileServer(staticFS)
-	addStaticHandler(r, "/css", fileServer)
 	addStaticHandler(r, "/js", fileServer)
 
 	r.NoRoute(index)
@@ -37,12 +36,11 @@ func router() (*gin.Engine, error) {
 
 	api := r.Group("/api")
 	app.Use(authRequired)
-	api.POST("/signed_upload_url", signedUploadURL)
-	api.POST("/create_post", createPostSubmit)
 	api.GET("/post/:ID", getPost)
 
 	graphql := r.Group("/graphql")
 	graphql.Use(ginContextToContextMiddleware)
+
 	graphql.POST("/query", makeGraphQLHandler())
 	if os.Getenv("GQL_PLAYGROUND") != "" {
 		graphql.GET("/", makePlayGroundHandler())
@@ -71,6 +69,7 @@ func makeGraphQLHandler() func(*gin.Context) {
 			generated.Config{
 				Resolvers: &resolvers.Resolver{
 					DS: ds,
+					TC: tc,
 				},
 			},
 		),

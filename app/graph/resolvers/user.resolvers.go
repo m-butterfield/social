@@ -6,6 +6,8 @@ package resolvers
 import (
 	"context"
 	"errors"
+	"strings"
+
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/graph/generated"
 	"github.com/m-butterfield/social/app/graph/model"
@@ -14,6 +16,7 @@ import (
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreds) (*data.User, error) {
+	input.Username = strings.TrimSpace(input.Username)
 	if input.Username == "" {
 		return nil, errors.New("please provide a username")
 	}
@@ -52,6 +55,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreds
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.UserCreds) (*data.User, error) {
+	input.Username = strings.TrimSpace(input.Username)
 	user, err := r.DS.GetUser(input.Username)
 	if err != nil {
 		return nil, internalError(err)

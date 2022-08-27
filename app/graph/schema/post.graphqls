@@ -3,6 +3,11 @@ type Post {
   body: String!
 }
 
-extend type Query {
-  posts: [Post!]!
+input CreatePostInput {
+  body: String!
+  images: [String!]!
+}
+
+extend type Mutation {
+  createPost(input: CreatePostInput!): Post!
 }
