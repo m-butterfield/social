@@ -226,18 +226,21 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema.graphqls", Input: `type User {
-  username: String!
-}
-
-type Post {
+	{Name: "../schema/post.graphqls", Input: `type Post {
   user: User!
   body: String!
 }
 
+extend type Query {
+  posts: [Post!]!
+}
+`, BuiltIn: false},
+	{Name: "../schema/user.graphqls", Input: `type User {
+  username: String!
+}
+
 type Query {
   me: User
-  posts: [Post!]!
 }
 
 input UserCreds {

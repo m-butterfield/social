@@ -1,6 +1,5 @@
-schema: ./app/graph/schema.graphqls
+schema: ./app/graph/schema/*.graphqls
 generates:
   ./app/static/ts/graphql/types.ts:
     plugins:
       - typescript
-      - typescript-operations

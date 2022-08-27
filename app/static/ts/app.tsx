@@ -1,4 +1,4 @@
-import {ApolloClient, ApolloProvider, gql, InMemoryCache, useMutation, useQuery} from "@apollo/client";
+import {ApolloClient, ApolloProvider, gql, InMemoryCache, useQuery} from "@apollo/client";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
@@ -59,7 +59,7 @@ const Main = () => {
   }, [data]);
   return <>
     {loading || error ?
-      <Typography>{error && error.message}</Typography>
+      <Typography>{error && "something is wrong"}</Typography>
       :
       <BrowserRouter>
         <Header />

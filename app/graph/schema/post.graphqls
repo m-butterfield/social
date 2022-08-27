@@ -1,0 +1,8 @@
+type Post {
+  user: User!
+  body: String!
+}
+
+extend type Query {
+  posts: [Post!]!
+}

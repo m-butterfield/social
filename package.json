@@ -7,7 +7,6 @@
     "@emotion/styled": "^11.10.0",
     "@graphql-codegen/cli": "^2.11.6",
     "@graphql-codegen/typescript": "^2.7.3",
-    "@graphql-codegen/typescript-operations": "^2.5.3",
     "@mui/material": "^5.10.0",
     "@types/react-dom": "^18.0.6",
     "@typescript-eslint/eslint-plugin": "^5.31.0",

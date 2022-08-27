@@ -47,6 +47,7 @@ docker-push-worker:
 reset-db:
 	dropdb --if-exists social
 	createdb social
+	psql social -c 'CREATE EXTENSION citext'
 	go run cmd/migrate/main.go
 
 migrate:
@@ -81,7 +82,10 @@ run-webpack-prod:
 
 test: export DB_SOCKET=host=localhost dbname=social_test
 test:
-	dropdb --if-exists social_test && createdb social_test && go run cmd/migrate/main.go
+	dropdb --if-exists social_test
+	createdb social_test
+	psql social_test -c 'CREATE EXTENSION citext'
+	go run cmd/migrate/main.go
 	go test -v ./app/...
 
 tf-plan:

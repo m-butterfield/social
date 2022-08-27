@@ -2,14 +2,8 @@ type User {
   username: String!
 }
 
-type Post {
-  user: User!
-  body: String!
-}
-
 type Query {
   me: User
-  posts: [Post!]!
 }
 
 input UserCreds {

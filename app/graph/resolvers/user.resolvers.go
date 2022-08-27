@@ -6,8 +6,6 @@ package resolvers
 import (
 	"context"
 	"errors"
-	"fmt"
-
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/graph/generated"
 	"github.com/m-butterfield/social/app/graph/model"
@@ -27,6 +25,12 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreds
 	}
 	if len(input.Password) > 64 {
 		return nil, errors.New("password must be less than 64 characters long")
+	}
+
+	if exising, err := r.DS.GetUser(input.Username); err != nil {
+		return nil, internalError(err)
+	} else if exising != nil {
+		return nil, errors.New("username already exists")
 	}
 
 	hashedPW, err := bcrypt.GenerateFromPassword([]byte(input.Password), 8)
@@ -93,11 +97,6 @@ func (r *queryResolver) Me(ctx context.Context) (*data.User, error) {
 		return nil, internalError(err)
 	}
 	return user, nil
-}
-
-// Posts is the resolver for the posts field.
-func (r *queryResolver) Posts(ctx context.Context) ([]*data.Post, error) {
-	panic(fmt.Errorf("not implemented: Posts - posts"))
 }
 
 // Mutation returns generated.MutationResolver implementation.
