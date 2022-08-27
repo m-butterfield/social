@@ -1,15 +1,10 @@
-import {ApolloClient, ApolloProvider, gql, InMemoryCache, useQuery} from "@apollo/client";
-import Box from "@mui/material/Box";
-import Container from "@mui/material/Container";
+import {ApolloClient, ApolloProvider, InMemoryCache} from "@apollo/client";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import Typography from "@mui/material/Typography";
-import AppRoutes from "app/AppRoutes";
-import {Header} from "app/Header";
-import {Query, User} from "graphql/types";
-import React, {createContext, useContext, useEffect, useState} from "react";
+import Main from "app/Main";
+import {User} from "graphql/types";
+import React, {createContext, useState} from "react";
 import CssBaseline from "@mui/material/CssBaseline";
 import {createRoot} from "react-dom/client";
-import {BrowserRouter} from "react-router-dom";
 import {theme} from "app/theme";
 
 type AppState = {
@@ -41,35 +36,6 @@ const App = () => {
   </AppContext.Provider>;
 };
 
-const ME = gql`
-  query me {
-    me {
-      username
-    }
-  }
-`;
-
-const Main = () => {
-  const {setUser} = useContext(AppContext);
-  const {data, loading, error} = useQuery<Query>(ME);
-  useEffect(() => {
-    if (data && data.me) setUser(data.me);
-  }, [data]);
-  return <>
-    {loading || error ?
-      <Typography>{error && "something is wrong"}</Typography>
-      :
-      <BrowserRouter>
-        <Header />
-        <Container>
-          <Box sx={{my: 2}}>
-            <AppRoutes />
-          </Box>
-        </Container>
-      </BrowserRouter>
-    }
-  </>;
-};
 
 const container = document.getElementById("root");
 const root = createRoot(container);

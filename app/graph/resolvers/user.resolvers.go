@@ -57,7 +57,7 @@ func (r *mutationResolver) Login(ctx context.Context, input model.UserCreds) (*d
 		return nil, internalError(err)
 	}
 	if user == nil {
-		return nil, errors.New("invalid user id")
+		return nil, errors.New("invalid username")
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {

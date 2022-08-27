@@ -30,10 +30,6 @@ func router() (*gin.Engine, error) {
 	r.NoRoute(index)
 	r.GET("/favicon.ico", favicon)
 
-	r.POST("/login", loginUser)
-	r.POST("/create_user", createUser)
-	r.GET("/logout", logout)
-
 	app := r.Group("/app")
 	app.Use(authRequired)
 	app.GET("/create_post", createPost)
