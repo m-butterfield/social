@@ -75,7 +75,7 @@ const Login = () => {
             onClick={(e) => {
               e.preventDefault();
               login().then((response) => {
-                setUser(response.data.createUser);
+                setUser(response.data.login);
                 setSuccess(true);
               });
             }}

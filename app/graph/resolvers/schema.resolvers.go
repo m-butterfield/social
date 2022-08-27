@@ -31,24 +31,68 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreds
 
 	hashedPW, err := bcrypt.GenerateFromPassword([]byte(input.Password), 8)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 	user := &data.User{
 		Username: input.Username,
 		Password: string(hashedPW),
 	}
 	if err = r.DS.CreateUser(user); err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 	if err = cookieLogin(ctx, r.DS, user); err != nil {
-		return nil, err
+		return nil, internalError(err)
 	}
 	return user, nil
 }
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.UserCreds) (*data.User, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
+	user, err := r.DS.GetUser(input.Username)
+	if err != nil {
+		return nil, internalError(err)
+	}
+	if user == nil {
+		return nil, errors.New("invalid user id")
+	}
+
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
+		return nil, errors.New("invalid password")
+	}
+
+	if err = cookieLogin(ctx, r.DS, user); err != nil {
+		return nil, internalError(err)
+	}
+	return user, nil
+}
+
+// Logout is the resolver for the logout field.
+func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
+	gctx, err := ginContextFromContext(ctx)
+	if err != nil {
+		return false, internalError(err)
+	}
+	cookie, err := getSessionCookie(gctx.Request)
+	if err != nil {
+		return false, internalError(err)
+	}
+	if cookie == nil {
+		return true, nil
+	}
+	if err := r.DS.DeleteAccessToken(cookie.Value); err != nil {
+		return false, internalError(err)
+	}
+	unsetSessionCookie(gctx.Writer)
+	return true, nil
+}
+
+// Me is the resolver for the me field.
+func (r *queryResolver) Me(ctx context.Context) (*data.User, error) {
+	user, err := loggedInUser(ctx)
+	if err != nil {
+		return nil, internalError(err)
+	}
+	return user, nil
 }
 
 // Posts is the resolver for the posts field.

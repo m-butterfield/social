@@ -8,6 +8,7 @@ type Post {
 }
 
 type Query {
+  me: User
   posts: [Post!]!
 }
 
@@ -19,4 +20,5 @@ input UserCreds {
 type Mutation {
   createUser(input: UserCreds!): User!
   login(input: UserCreds!): User!
+  logout: Boolean!
 }

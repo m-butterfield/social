@@ -6,7 +6,7 @@ import (
 )
 
 func createPost(c *gin.Context) {
-	body, err := templateRender("app/create_post", makeBasePage(c))
+	body, err := templateRender("app/create_post", makeBasePage())
 	if err != nil {
 		log.Fatal(err)
 		return

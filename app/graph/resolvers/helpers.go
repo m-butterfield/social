@@ -2,11 +2,14 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/lib"
+	"log"
 	"net/http"
+	"time"
 )
 
 func ginContextFromContext(ctx context.Context) (*gin.Context, error) {
@@ -41,4 +44,43 @@ func cookieLogin(ctx context.Context, ds data.Store, user *data.User) error {
 		Expires: token.ExpiresAt,
 	})
 	return nil
+}
+
+func loggedInUser(ctx context.Context) (*data.User, error) {
+	gctx, err := ginContextFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result, exists := gctx.Get("user")
+	if !exists {
+		return nil, nil
+	}
+	if user, ok := result.(*data.User); ok {
+		return user, nil
+	}
+	return nil, errors.New("bad user type in context")
+}
+
+func getSessionCookie(r *http.Request) (*http.Cookie, error) {
+	cookie, err := r.Cookie(lib.SessionTokenName)
+	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return cookie, nil
+}
+
+func unsetSessionCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:    lib.SessionTokenName,
+		Value:   "",
+		Expires: time.Unix(0, 0),
+	})
+}
+
+func internalError(err error) error {
+	log.Println(err)
+	return errors.New("internal system error")
 }

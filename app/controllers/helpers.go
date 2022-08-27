@@ -58,9 +58,8 @@ type basePage struct {
 	Year          string
 }
 
-func makeBasePage(c *gin.Context) *basePage {
+func makeBasePage() *basePage {
 	return &basePage{
-		User:          loggedInUser(c),
 		ImagesBaseURL: lib.ImagesBaseURL,
 		Year:          time.Now().UTC().Format("2006"),
 	}

@@ -16,6 +16,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createUser: User;
   login: User;
+  logout: Scalars['Boolean'];
 };
 
 
@@ -36,6 +37,7 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
+  me?: Maybe<User>;
   posts: Array<Post>;
 };
 

@@ -7,11 +7,6 @@
     {{ template "head" . }}
   </head>
   <body>
-    <script>
-      window.user = {{ if .User }}{
-        id: "{{ .User.ID }}"
-      }{{ else }}null{{ end }};
-    </script>
     {{ template "main" . }}
   </body>
 </html>

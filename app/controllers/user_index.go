@@ -30,7 +30,7 @@ func userIndex(c *gin.Context) {
 		return
 	}
 	body, err := templateRender("app/user/index", &userPage{
-		basePage: makeBasePage(c),
+		basePage: makeBasePage(),
 		PageUser: user,
 		Posts:    posts,
 	})
