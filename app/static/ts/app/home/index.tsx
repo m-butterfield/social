@@ -30,7 +30,7 @@ const Home = () => {
   const message = loading ? "Loading..." : error ? "Error loading posts..." : "";
 
   return <Stack direction="column" alignItems="center" spacing={2} width={800} m="auto">
-    <Typography variant="h2">Welcome, {user && user.username}.</Typography>
+    <Typography variant="h2">Welcome{user && `, ${user.username}.`}</Typography>
     {message ?
       <Typography>{message}</Typography>
       :

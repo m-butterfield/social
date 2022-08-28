@@ -9,7 +9,7 @@ import (
 	"github.com/h2non/bimg"
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/lib"
-	"io/ioutil"
+	"io"
 	"log"
 	"math"
 )
@@ -94,7 +94,7 @@ func processImage(ctx context.Context, obj *storage.ObjectHandle) (*bimg.ImageSi
 			log.Println(err)
 		}
 	}(reader)
-	buffer, err := ioutil.ReadAll(reader)
+	buffer, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, nil, err
 	}

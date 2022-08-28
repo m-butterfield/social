@@ -39,6 +39,7 @@ const CreatePost = () => {
   const [bodyError, setBodyError] = useState("");
   const [postID, setPostID] = useState("");
   const [uploadFileName, setUploadFileName] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setUploadFileName(fileName ? `${fileName}?${crypto.randomUUID()}` : "");
@@ -62,7 +63,7 @@ const CreatePost = () => {
     <Typography align="center" variant="h4">create a post</Typography>
     <Box component="form" sx={{mt: 3}}>
       <Stack direction="column" alignItems="center" spacing={2} width={300} m="auto">
-        <Button fullWidth variant="contained" component="label">
+        <Button fullWidth variant="contained" component="label" disabled={loading}>
           Choose Image File
           <input hidden accept="image/jpeg" type="file" onChange={(e) => {
             if (e.target.files.length) {
@@ -80,6 +81,7 @@ const CreatePost = () => {
         <TextField
           multiline
           fullWidth
+          disabled={loading}
           label="body (optional)"
           error={bodyError.length > 0}
           helperText={bodyError}
@@ -102,14 +104,16 @@ const CreatePost = () => {
         <Button
           fullWidth
           variant="contained"
-          disabled={!fileName || bodyError.length > 0}
+          disabled={!fileName || bodyError.length > 0 || loading}
           component="label"
           onClick={(e) => {
             e.preventDefault();
+            setLoading(true);
             signedUploadURL()
               .then((r) => uploadFile(r.data.signedUploadURL, file))
               .then(() => createPost())
-              .then((response) => setPostID(response.data.createPost.id));
+              .then((response) => setPostID(response.data.createPost.id))
+              .finally(() => setLoading(false));
           }}
         >
           Submit
