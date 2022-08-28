@@ -2,6 +2,13 @@ type Post {
   id: String!
   user: User!
   body: String!
+  images: [Image!]!
+}
+
+type Image {
+  id: String!
+  width: Int!
+  height: Int!
 }
 
 input CreatePostInput {

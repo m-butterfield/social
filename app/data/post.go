@@ -14,6 +14,7 @@ type Post struct {
 	CreatedAt   time.Time `gorm:"not null;default:now()"`
 	PublishedAt *time.Time
 	PostImages  []*PostImage
+	Images      []*Image `gorm:"many2many:post_images;"`
 }
 
 func (s *ds) CreatePost(post *Post) error {
@@ -54,7 +55,8 @@ func (s *ds) GetPost(id string) (*Post, error) {
 func (s *ds) GetPosts() ([]*Post, error) {
 	var posts []*Post
 	tx := s.db.
-		Preload("PostImages.Image").
+		Preload("Images").
+		Preload("User").
 		Where("published_at IS NOT NULL").
 		Order("created_at DESC").
 		Limit(20).
@@ -68,7 +70,8 @@ func (s *ds) GetPosts() ([]*Post, error) {
 func (s *ds) GetUserPosts(id string) ([]*Post, error) {
 	var posts []*Post
 	tx := s.db.
-		Preload("PostImages.Image").
+		Preload("Images").
+		Preload("User").
 		Where("user_id = $1", id).
 		Where("published_at IS NOT NULL").
 		Order("created_at DESC").

@@ -17,6 +17,13 @@ export type CreatePostInput = {
   images: Array<Scalars['String']>;
 };
 
+export type Image = {
+  __typename?: 'Image';
+  height: Scalars['Int'];
+  id: Scalars['String'];
+  width: Scalars['Int'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createPost: Post;
@@ -50,6 +57,7 @@ export type Post = {
   __typename?: 'Post';
   body: Scalars['String'];
   id: Scalars['String'];
+  images: Array<Image>;
   user: User;
 };
 

@@ -6,6 +6,7 @@ package resolvers
 import (
 	"context"
 	"errors"
+
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/graph/model"
 	"github.com/m-butterfield/social/app/lib"
