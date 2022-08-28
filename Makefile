@@ -48,6 +48,7 @@ reset-db:
 	dropdb --if-exists social
 	createdb social
 	psql social -c 'CREATE EXTENSION citext'
+	psql social -c 'CREATE EXTENSION "uuid-ossp"'
 	go run cmd/migrate/main.go
 
 migrate:
@@ -85,6 +86,7 @@ test:
 	dropdb --if-exists social_test
 	createdb social_test
 	psql social_test -c 'CREATE EXTENSION citext'
+	psql social_test -c 'CREATE EXTENSION "uuid-ossp"'
 	go run cmd/migrate/main.go
 	go test -v ./app/...
 

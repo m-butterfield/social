@@ -1,4 +1,5 @@
 type Post {
+  id: String!
   user: User!
   body: String!
 }
@@ -10,4 +11,8 @@ input CreatePostInput {
 
 extend type Mutation {
   createPost(input: CreatePostInput!): Post!
+}
+
+extend type Query {
+  getPost(id: String!): Post!
 }

@@ -30,13 +30,7 @@ func router() (*gin.Engine, error) {
 	r.GET("/favicon.ico", favicon)
 
 	app := r.Group("/app")
-	app.Use(authRequired)
-	app.GET("/create_post", createPost)
 	app.GET("/user/:username", userIndex)
-
-	api := r.Group("/api")
-	app.Use(authRequired)
-	api.GET("/post/:ID", getPost)
 
 	graphql := r.Group("/graphql")
 	graphql.Use(ginContextToContextMiddleware)

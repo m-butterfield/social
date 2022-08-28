@@ -49,12 +49,19 @@ export type MutationSignedUploadUrlArgs = {
 export type Post = {
   __typename?: 'Post';
   body: Scalars['String'];
+  id: Scalars['String'];
   user: User;
 };
 
 export type Query = {
   __typename?: 'Query';
+  getPost: Post;
   me?: Maybe<User>;
+};
+
+
+export type QueryGetPostArgs = {
+  id: Scalars['String'];
 };
 
 export type SignedUploadInput = {

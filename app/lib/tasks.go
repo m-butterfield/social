@@ -21,7 +21,7 @@ const (
 )
 
 type PublishPostRequest struct {
-	PostID int      `json:"PostID"`
+	PostID string   `json:"PostID"`
 	Images []string `json:"images"`
 }
 

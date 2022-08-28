@@ -17,14 +17,14 @@ import (
 func TestCreatePostSubmit(t *testing.T) {
 	w := httptest.NewRecorder()
 	expectedPost := &data.Post{
-		ID:   123,
+		ID:   "123",
 		Body: "post body",
 	}
 	expectedImages := []string{"test.jpg"}
 	expectedUserID := 123
 	ts := &data.TestStore{
 		TestCreatePost: func(post *data.Post) error {
-			post.ID = 123
+			post.ID = "123"
 			assert.Equal(t, expectedPost.Body, post.Body)
 			assert.Equal(t, expectedUserID, post.UserID)
 			return nil
@@ -111,4 +111,57 @@ func TestCreatePostSubmitBodyTooLong(t *testing.T) {
 	})
 	assert.Equal(t, "post body too long (max 4096 characters)", err.Error())
 	assert.Nil(t, result)
+}
+
+func TestGetPost(t *testing.T) {
+	w := httptest.NewRecorder()
+	expectedPost := &data.Post{
+		ID: "123",
+	}
+	ts := &data.TestStore{
+		TestGetPost: func(id string) (*data.Post, error) {
+			return expectedPost, nil
+		},
+		TestGetAccessToken: func(string) (*data.AccessToken, error) {
+			return &data.AccessToken{User: expectedPost.User}, nil
+		},
+	}
+	r := Resolver{DS: ts}
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	gctx.Set(lib.UserContextKey, &data.User{ID: 123})
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
+
+	result, err := r.Query().GetPost(ctx, expectedPost.ID)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 1, ts.GetPostCallCount)
+	assert.Equal(t, *expectedPost, *result)
+}
+
+func TestGetPostDoesntExist(t *testing.T) {
+	w := httptest.NewRecorder()
+	expectedPost := &data.Post{
+		ID: "123",
+	}
+	ts := &data.TestStore{
+		TestGetPost: func(id string) (*data.Post, error) {
+			return nil, nil
+		},
+		TestGetAccessToken: func(string) (*data.AccessToken, error) {
+			return &data.AccessToken{User: expectedPost.User}, nil
+		},
+	}
+	r := Resolver{DS: ts}
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	gctx.Set(lib.UserContextKey, &data.User{ID: 123})
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
+
+	result, err := r.Query().GetPost(ctx, expectedPost.ID)
+
+	assert.Nil(t, result)
+	assert.Equal(t, "post not found", err.Error())
 }

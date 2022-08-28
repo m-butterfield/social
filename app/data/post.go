@@ -7,7 +7,7 @@ import (
 )
 
 type Post struct {
-	ID          int    `json:"id"`
+	ID          string `gorm:"type:uuid;default:uuid_generate_v4()"`
 	Body        string `json:"body"`
 	UserID      int    `gorm:"not null" json:"-"`
 	User        *User
@@ -23,7 +23,7 @@ func (s *ds) CreatePost(post *Post) error {
 	return nil
 }
 
-func (s *ds) PublishPost(id int, images []*Image) error {
+func (s *ds) PublishPost(id string, images []*Image) error {
 	post := &Post{ID: id}
 	var postImages []*PostImage
 	for _, image := range images {
@@ -41,9 +41,9 @@ func (s *ds) PublishPost(id int, images []*Image) error {
 	return nil
 }
 
-func (s *ds) GetPost(id int) (*Post, error) {
+func (s *ds) GetPost(id string) (*Post, error) {
 	var post *Post
-	if tx := s.db.First(&post, id); tx.Error != nil {
+	if tx := s.db.First(&post, "id = $1", id); tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}

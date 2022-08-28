@@ -39,9 +39,9 @@ type Store interface {
 	GetAccessToken(string) (*AccessToken, error)
 	CreatePost(*Post) error
 	GetPosts() ([]*Post, error)
-	GetPost(int) (*Post, error)
+	GetPost(string) (*Post, error)
 	GetOrCreateImage(string, int, int) (*Image, error)
-	PublishPost(int, []*Image) error
+	PublishPost(string, []*Image) error
 	GetUserPosts(int) ([]*Post, error)
 }
 
