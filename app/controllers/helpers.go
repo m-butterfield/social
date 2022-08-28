@@ -65,36 +65,6 @@ func makeBasePage() *basePage {
 	}
 }
 
-func loggedInUser(c *gin.Context) *data.User {
-	result, exists := c.Get(lib.UserContextKey)
-	if !exists {
-		return nil
-	}
-	if user, ok := result.(*data.User); ok {
-		return user
-	}
-	return nil
-}
-
-type userLoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-func cookieLogin(w http.ResponseWriter, user *data.User) error {
-	token, err := ds.CreateAccessToken(user)
-	if err != nil {
-		return err
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:    lib.SessionTokenName,
-		Value:   token.ID,
-		Expires: token.ExpiresAt,
-	})
-	return nil
-}
-
 func unsetSessionCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:    lib.SessionTokenName,
