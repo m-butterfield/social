@@ -63,7 +63,7 @@ const CreatePost = () => {
     <Typography align="center" variant="h4">create a post</Typography>
     <Box component="form" sx={{mt: 3}}>
       <Stack direction="column" alignItems="center" spacing={2} width={300} m="auto">
-        <Button fullWidth variant="contained" component="label" disabled={loading}>
+        <Button fullWidth variant="contained" component="label" disabled={loading || postID !== ""}>
           Choose Image File
           <input hidden accept="image/jpeg" type="file" onChange={(e) => {
             if (e.target.files.length) {
@@ -81,7 +81,7 @@ const CreatePost = () => {
         <TextField
           multiline
           fullWidth
-          disabled={loading}
+          disabled={loading || postID !== ""}
           label="body (optional)"
           error={bodyError.length > 0}
           helperText={bodyError}
@@ -104,7 +104,7 @@ const CreatePost = () => {
         <Button
           fullWidth
           variant="contained"
-          disabled={!fileName || bodyError.length > 0 || loading}
+          disabled={!fileName || bodyError.length > 0 || loading || postID !== ""}
           component="label"
           onClick={(e) => {
             e.preventDefault();
