@@ -56,6 +56,7 @@ export type Post = {
 export type Query = {
   __typename?: 'Query';
   getPost: Post;
+  getPosts: Array<Post>;
   getUserPosts: Array<Post>;
   me?: Maybe<User>;
 };

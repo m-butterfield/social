@@ -9,7 +9,6 @@ import (
 	"github.com/m-butterfield/social/app/tasks"
 	"github.com/stretchr/testify/assert"
 	cloudtask "google.golang.org/genproto/googleapis/cloud/tasks/v2"
-	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -171,14 +170,6 @@ func TestGetUserPosts(t *testing.T) {
 	testUser := &data.User{
 		Username: "testUser",
 	}
-	req, err := http.NewRequest("GET", "/app/user/"+testUser.Username, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.AddCookie(&http.Cookie{
-		Name:  lib.SessionTokenName,
-		Value: "1234",
-	})
 	ts := &data.TestStore{
 		TestGetUser: func(username string) (*data.User, error) {
 			assert.Equal(t, testUser.Username, username)
@@ -205,14 +196,6 @@ func TestGetUserPosts(t *testing.T) {
 }
 
 func TestGetUserPostsDoesNotExist(t *testing.T) {
-	req, err := http.NewRequest("GET", "/app/user/"+"something", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.AddCookie(&http.Cookie{
-		Name:  lib.SessionTokenName,
-		Value: "1234",
-	})
 	ts := &data.TestStore{
 		TestGetUser: func(username string) (*data.User, error) {
 			return nil, nil
@@ -227,4 +210,18 @@ func TestGetUserPostsDoesNotExist(t *testing.T) {
 
 	assert.Nil(t, result)
 	assert.Equal(t, "user not found", err.Error())
+}
+
+func TestGetPosts(t *testing.T) {
+	ts := &data.TestStore{
+		TestGetPosts: func() ([]*data.Post, error) {
+			return []*data.Post{{}}, nil
+		},
+	}
+	r := Resolver{DS: ts}
+
+	result, err := r.Query().GetPosts(context.Background())
+
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result))
 }
