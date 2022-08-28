@@ -21,7 +21,7 @@ func TestCreatePostSubmit(t *testing.T) {
 		Body: "post body",
 	}
 	expectedImages := []string{"test.jpg"}
-	expectedUserID := 123
+	expectedUserID := "123"
 	ts := &data.TestStore{
 		TestCreatePost: func(post *data.Post) error {
 			post.ID = "123"
@@ -78,7 +78,7 @@ func TestCreatePostSubmitNoBody(t *testing.T) {
 	ctx := context.Background()
 	gin.SetMode(gin.ReleaseMode)
 	gctx, _ := gin.CreateTestContext(w)
-	gctx.Set(lib.UserContextKey, &data.User{ID: 123})
+	gctx.Set(lib.UserContextKey, &data.User{ID: "123"})
 	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 	result, err := r.Mutation().CreatePost(ctx, model.CreatePostInput{
 		Images: []string{"test.jpg"},
@@ -103,7 +103,7 @@ func TestCreatePostSubmitBodyTooLong(t *testing.T) {
 	ctx := context.Background()
 	gin.SetMode(gin.ReleaseMode)
 	gctx, _ := gin.CreateTestContext(w)
-	gctx.Set(lib.UserContextKey, &data.User{ID: 123})
+	gctx.Set(lib.UserContextKey, &data.User{ID: "123"})
 	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 	result, err := r.Mutation().CreatePost(ctx, model.CreatePostInput{
 		Body:   strings.Repeat("a", 4097),
@@ -130,7 +130,7 @@ func TestGetPost(t *testing.T) {
 	ctx := context.Background()
 	gin.SetMode(gin.ReleaseMode)
 	gctx, _ := gin.CreateTestContext(w)
-	gctx.Set(lib.UserContextKey, &data.User{ID: 123})
+	gctx.Set(lib.UserContextKey, &data.User{ID: "123"})
 	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 
 	result, err := r.Query().GetPost(ctx, expectedPost.ID)
@@ -157,7 +157,7 @@ func TestGetPostDoesntExist(t *testing.T) {
 	ctx := context.Background()
 	gin.SetMode(gin.ReleaseMode)
 	gctx, _ := gin.CreateTestContext(w)
-	gctx.Set(lib.UserContextKey, &data.User{ID: 123})
+	gctx.Set(lib.UserContextKey, &data.User{ID: "123"})
 	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 
 	result, err := r.Query().GetPost(ctx, expectedPost.ID)

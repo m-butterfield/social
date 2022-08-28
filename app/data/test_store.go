@@ -17,7 +17,7 @@ type TestStore struct {
 	GetPostsCallCount          int
 	TestGetPost                func(string) (*Post, error)
 	GetPostCallCount           int
-	TestGetUserPosts           func(int) ([]*Post, error)
+	TestGetUserPosts           func(string) ([]*Post, error)
 	GetUserPostsCallCount      int
 }
 
@@ -69,7 +69,7 @@ func (t *TestStore) PublishPost(string, []*Image) error {
 	panic("should not be called")
 }
 
-func (t *TestStore) GetUserPosts(id int) ([]*Post, error) {
+func (t *TestStore) GetUserPosts(id string) ([]*Post, error) {
 	t.GetUserPostsCallCount += 1
 	return t.TestGetUserPosts(id)
 }

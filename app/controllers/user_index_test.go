@@ -30,7 +30,7 @@ func TestUserIndex(t *testing.T) {
 		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
 			return &data.AccessToken{ID: "1234"}, nil
 		},
-		TestGetUserPosts: func(id int) ([]*data.Post, error) {
+		TestGetUserPosts: func(id string) ([]*data.Post, error) {
 			assert.Equal(t, testUser.ID, id)
 			return []*data.Post{{
 				Body: "hello.",

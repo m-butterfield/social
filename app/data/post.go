@@ -9,7 +9,7 @@ import (
 type Post struct {
 	ID          string `gorm:"type:uuid;default:uuid_generate_v4()"`
 	Body        string `json:"body"`
-	UserID      int    `gorm:"not null" json:"-"`
+	UserID      string `gorm:"not null" json:"-"`
 	User        *User
 	CreatedAt   time.Time `gorm:"not null;default:now()"`
 	PublishedAt *time.Time
@@ -24,16 +24,15 @@ func (s *ds) CreatePost(post *Post) error {
 }
 
 func (s *ds) PublishPost(id string, images []*Image) error {
-	post := &Post{ID: id}
 	var postImages []*PostImage
 	for _, image := range images {
-		postImages = append(postImages, &PostImage{Post: post, Image: image})
+		postImages = append(postImages, &PostImage{PostID: id, Image: image})
 	}
 	if tx := s.db.Create(&postImages); tx.Error != nil {
 		return tx.Error
 	}
 	now := time.Now().UTC()
-	if tx := s.db.Model(&post).Updates(&Post{
+	if tx := s.db.Model(&Post{ID: id}).Updates(&Post{
 		PublishedAt: &now,
 	}); tx.Error != nil {
 		return tx.Error
@@ -66,7 +65,7 @@ func (s *ds) GetPosts() ([]*Post, error) {
 	return posts, nil
 }
 
-func (s *ds) GetUserPosts(id int) ([]*Post, error) {
+func (s *ds) GetUserPosts(id string) ([]*Post, error) {
 	var posts []*Post
 	tx := s.db.
 		Preload("PostImages.Image").
