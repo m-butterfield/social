@@ -56,12 +56,18 @@ export type Post = {
 export type Query = {
   __typename?: 'Query';
   getPost: Post;
+  getUserPosts: Array<Post>;
   me?: Maybe<User>;
 };
 
 
 export type QueryGetPostArgs = {
   id: Scalars['String'];
+};
+
+
+export type QueryGetUserPostsArgs = {
+  userID: Scalars['String'];
 };
 
 export type SignedUploadInput = {

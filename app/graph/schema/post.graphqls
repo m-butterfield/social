@@ -15,4 +15,5 @@ extend type Mutation {
 
 extend type Query {
   getPost(id: String!): Post!
+  getUserPosts(userID: String!): [Post!]!
 }

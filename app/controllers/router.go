@@ -29,9 +29,6 @@ func router() (*gin.Engine, error) {
 	r.NoRoute(index)
 	r.GET("/favicon.ico", favicon)
 
-	app := r.Group("/app")
-	app.GET("/user/:username", userIndex)
-
 	graphql := r.Group("/graphql")
 	graphql.Use(ginContextToContextMiddleware)
 

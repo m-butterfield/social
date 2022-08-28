@@ -9,6 +9,7 @@ import (
 	"github.com/m-butterfield/social/app/tasks"
 	"github.com/stretchr/testify/assert"
 	cloudtask "google.golang.org/genproto/googleapis/cloud/tasks/v2"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -164,4 +165,66 @@ func TestGetPostDoesntExist(t *testing.T) {
 
 	assert.Nil(t, result)
 	assert.Equal(t, "post not found", err.Error())
+}
+
+func TestGetUserPosts(t *testing.T) {
+	testUser := &data.User{
+		Username: "testUser",
+	}
+	req, err := http.NewRequest("GET", "/app/user/"+testUser.Username, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.AddCookie(&http.Cookie{
+		Name:  lib.SessionTokenName,
+		Value: "1234",
+	})
+	ts := &data.TestStore{
+		TestGetUser: func(username string) (*data.User, error) {
+			assert.Equal(t, testUser.Username, username)
+			return testUser, nil
+		},
+		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
+			return &data.AccessToken{ID: "1234"}, nil
+		},
+		TestGetUserPosts: func(id string) ([]*data.Post, error) {
+			assert.Equal(t, testUser.ID, id)
+			return []*data.Post{{
+				Body: "hello.",
+			}}, nil
+		},
+	}
+	r := Resolver{DS: ts}
+
+	result, err := r.Query().GetUserPosts(context.Background(), testUser.Username)
+
+	assert.Nil(t, err)
+	assert.Equal(t, len(result), 1)
+	assert.Equal(t, 1, ts.GetUserCallCount)
+	assert.Equal(t, 1, ts.GetUserPostsCallCount)
+}
+
+func TestGetUserPostsDoesNotExist(t *testing.T) {
+	req, err := http.NewRequest("GET", "/app/user/"+"something", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.AddCookie(&http.Cookie{
+		Name:  lib.SessionTokenName,
+		Value: "1234",
+	})
+	ts := &data.TestStore{
+		TestGetUser: func(username string) (*data.User, error) {
+			return nil, nil
+		},
+		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
+			return &data.AccessToken{ID: "1234"}, nil
+		},
+	}
+	r := Resolver{DS: ts}
+
+	result, err := r.Query().GetUserPosts(context.Background(), "none")
+
+	assert.Nil(t, result)
+	assert.Equal(t, "user not found", err.Error())
 }
