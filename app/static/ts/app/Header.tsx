@@ -6,7 +6,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import {AppContext} from "app";
 import {Mutation} from "graphql/types";
-import React, {useContext} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Link as RouterLink} from "react-router-dom";
 
 const LOGOUT = gql`
@@ -18,6 +18,14 @@ const LOGOUT = gql`
 export const Header = () => {
   const {user, setUser} = useContext(AppContext);
   const [logout] = useMutation<Mutation>(LOGOUT);
+  const [logoutSuccess, setLogoutSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!user && logoutSuccess) {
+      window.location.href = "/";
+    }
+  }, [logoutSuccess]);
+
   return <AppBar
     position="static"
     color="primary"
@@ -44,7 +52,10 @@ export const Header = () => {
               <Link
                 underline="hover"
                 color="text.primary"
-                onClick={() => logout().then(() => setUser(null))}
+                onClick={() => logout().then(() => {
+                  setUser(null);
+                  setLogoutSuccess(true);
+                })}
                 sx={{my: 1, mx: 1.5}}
               >
               logout

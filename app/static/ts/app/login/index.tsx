@@ -70,7 +70,7 @@ const Login = () => {
             fullWidth
             type="submit"
             variant="contained"
-            disabled={false}
+            disabled={!password || !username}
             sx={{boxShadow: "unset"}}
             onClick={(e) => {
               e.preventDefault();

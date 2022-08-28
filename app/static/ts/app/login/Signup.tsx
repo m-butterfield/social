@@ -61,7 +61,7 @@ const Signup = (props: SignupProps) => {
           <Button
             fullWidth type="submit"
             variant="contained"
-            disabled={false}
+            disabled={!newPassword || !newUsername}
             sx={{boxShadow: "unset"}}
             onClick={(e) => {
               e.preventDefault();
