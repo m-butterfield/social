@@ -2,25 +2,11 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/lib"
 )
 
-type homePage struct {
-	*basePage
-	Posts []*data.Post
-}
-
 func index(c *gin.Context) {
-	posts, err := ds.GetPosts()
-	if err != nil {
-		lib.InternalError(err, c)
-		return
-	}
-	body, err := templateRender("index", &homePage{
-		basePage: makeBasePage(c),
-		Posts:    posts,
-	})
+	body, err := templateRender("index", makeBasePage())
 	if err != nil {
 		lib.InternalError(err, c)
 		return

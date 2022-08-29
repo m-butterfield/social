@@ -4,3 +4,5 @@ dump.sql
 .terraform
 *.tfstate
 secrets.tfvars
+*.log
+dist

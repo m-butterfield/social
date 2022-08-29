@@ -21,7 +21,7 @@ const (
 )
 
 type PublishPostRequest struct {
-	PostID int      `json:"PostID"`
+	PostID string   `json:"PostID"`
 	Images []string `json:"images"`
 }
 
@@ -59,7 +59,7 @@ func (t *localTaskCreator) CreateTask(taskName, _ string, data interface{}) (*ta
 	go func() {
 		_, err = http.Post(t.workerBaseURL+taskName, "application/json", bytes.NewBuffer(body))
 		if err != nil {
-			log.Print("Async task error:", err)
+			log.Print("Async task error: ", err)
 		}
 	}()
 	return nil, nil

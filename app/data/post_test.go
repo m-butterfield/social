@@ -12,7 +12,7 @@ func TestCreatePost(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user := &User{ID: "testUser"}
+	user := &User{Username: "testUser"}
 	if err = s.CreateUser(user); err != nil {
 		t.Fatal(err)
 	}
@@ -35,7 +35,7 @@ func TestGetPost(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user := &User{ID: "testUser"}
+	user := &User{Username: "testUser"}
 	if err = s.CreateUser(user); err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func TestPublishPost(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user := &User{ID: "testUser"}
+	user := &User{Username: "testUser"}
 	if err = s.CreateUser(user); err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +79,7 @@ func TestPublishPost(t *testing.T) {
 	if err = s.PublishPost(post.ID, []*Image{image}); err != nil {
 		t.Fatal(err)
 	}
-	if tx := s.db.Preload("PostImages").First(&post, post.ID); tx.Error != nil {
+	if tx := s.db.Preload("PostImages").First(&post, "id = $1", post.ID); tx.Error != nil {
 		t.Fatal(tx.Error)
 	}
 	assert.NotNil(t, post.PublishedAt)
@@ -96,7 +96,7 @@ func TestGetUserPosts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	user := &User{ID: "testUser"}
+	user := &User{Username: "testUser"}
 	if err = s.CreateUser(user); err != nil {
 		t.Fatal(err)
 	}

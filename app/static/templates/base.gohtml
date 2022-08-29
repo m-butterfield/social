@@ -4,27 +4,10 @@
   <head>
     <title>social</title>
     <link rel="shortcut icon" type="image/jpg" href="{{ .ImagesBaseURL }}favicon.ico"/>
-    <link rel="stylesheet" href="/css/app.css">
     {{ template "head" . }}
   </head>
   <body>
-    <div id="body-div">
-      <div class="section-div">
-        <h3><a href="/" style="text-decoration: none;">social</a></h3>
-        {{ if .User }}
-          <a href="/app/create_post">create a post</a>
-          <a style="float: right;" href="/logout">logout</a>
-        {{ else }}
-          <a href="/">home</a>
-          <a style="float: right;" href="/login">login / signup</a>
-        {{ end }}
-      </div>
-      {{ template "main" . }}
-      <div id="footer">
-        <a target="_blank" href="https://github.com/m-butterfield/social">view source code</a>
-        <p>© {{ .Year }} Social</p>
-      </div>
-    </div>
+    {{ template "main" . }}
   </body>
 </html>
 {{ end }}

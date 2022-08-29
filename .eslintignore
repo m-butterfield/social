@@ -1,1 +1,2 @@
-*.pack.js
+dist/
+app/static/ts/graphql

@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/social/app/data"
+	"github.com/m-butterfield/social/app/lib"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -14,8 +15,8 @@ func TestAuthGoodToken(t *testing.T) {
 	w := httptest.NewRecorder()
 	tokenID := "1234"
 	user := &data.User{}
-	ts := &testStore{
-		getAccessToken: func(id string) (*data.AccessToken, error) {
+	ts := &data.TestStore{
+		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
 			return &data.AccessToken{ID: tokenID, User: user}, nil
 		},
 	}
@@ -28,7 +29,7 @@ func TestAuthGoodToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	c.Request.AddCookie(&http.Cookie{
-		Name:  sessionTokenName,
+		Name:  lib.SessionTokenName,
 		Value: tokenID,
 	})
 
@@ -42,8 +43,8 @@ func TestAuthGoodToken(t *testing.T) {
 func TestAuthBadToken(t *testing.T) {
 	w := httptest.NewRecorder()
 	tokenID := "1234"
-	ts := &testStore{
-		getAccessToken: func(id string) (*data.AccessToken, error) {
+	ts := &data.TestStore{
+		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
 			return nil, nil
 		},
 	}
@@ -56,7 +57,7 @@ func TestAuthBadToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	c.Request.AddCookie(&http.Cookie{
-		Name:  sessionTokenName,
+		Name:  lib.SessionTokenName,
 		Value: tokenID,
 	})
 

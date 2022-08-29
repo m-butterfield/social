@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	templatePath     = "templates/"
-	sessionTokenName = "SessionToken"
+	templatePath = "templates/"
 )
 
 var (
@@ -59,54 +58,23 @@ type basePage struct {
 	Year          string
 }
 
-func makeBasePage(c *gin.Context) *basePage {
+func makeBasePage() *basePage {
 	return &basePage{
-		User:          loggedInUser(c),
 		ImagesBaseURL: lib.ImagesBaseURL,
 		Year:          time.Now().UTC().Format("2006"),
 	}
 }
 
-func loggedInUser(c *gin.Context) *data.User {
-	result, exists := c.Get("user")
-	if !exists {
-		return nil
-	}
-	if user, ok := result.(*data.User); ok {
-		return user
-	}
-	return nil
-}
-
-type userLoginRequest struct {
-	UserID   string `json:"userID"`
-	Password string `json:"password"`
-}
-
-func cookieLogin(w http.ResponseWriter, user *data.User) error {
-	token, err := ds.CreateAccessToken(user)
-	if err != nil {
-		return err
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:    sessionTokenName,
-		Value:   token.ID,
-		Expires: token.ExpiresAt,
-	})
-	return nil
-}
-
 func unsetSessionCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:    sessionTokenName,
+		Name:    lib.SessionTokenName,
 		Value:   "",
 		Expires: time.Unix(0, 0),
 	})
 }
 
 func getSessionCookie(c *gin.Context) (*http.Cookie, error) {
-	cookie, err := c.Request.Cookie(sessionTokenName)
+	cookie, err := c.Request.Cookie(lib.SessionTokenName)
 	if err != nil {
 		if errors.Is(err, http.ErrNoCookie) {
 			return nil, nil

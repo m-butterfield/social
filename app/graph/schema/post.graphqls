@@ -1,0 +1,27 @@
+type Post {
+  id: String!
+  user: User!
+  body: String!
+  images: [Image!]!
+}
+
+type Image {
+  id: String!
+  width: Int!
+  height: Int!
+}
+
+input CreatePostInput {
+  body: String!
+  images: [String!]!
+}
+
+extend type Mutation {
+  createPost(input: CreatePostInput!): Post!
+}
+
+extend type Query {
+  getPost(id: String!): Post!
+  getPosts: [Post!]!
+  getUserPosts(userID: String!): [Post!]!
+}
