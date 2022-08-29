@@ -53,7 +53,7 @@ resource "google_cloud_run_service" "social" {
         "autoscaling.knative.dev/maxScale"         = "100"
         "client.knative.dev/user-image"            = "gcr.io/mattbutterfield/social"
         "run.googleapis.com/client-name"           = "gcloud"
-        "run.googleapis.com/client-version"        = "378.0.0"
+        "run.googleapis.com/client-version"        = "397.0.0"
         "run.googleapis.com/execution-environment" = "gen1"
       }
     }
@@ -124,7 +124,7 @@ resource "google_cloud_run_service" "social-worker" {
         "autoscaling.knative.dev/maxScale"      = "100"
         "client.knative.dev/user-image"         = "gcr.io/mattbutterfield/social-worker"
         "run.googleapis.com/client-name"        = "gcloud"
-        "run.googleapis.com/client-version"     = "394.0.0"
+        "run.googleapis.com/client-version"     = "397.0.0"
       }
     }
   }
