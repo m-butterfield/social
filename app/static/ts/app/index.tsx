@@ -15,7 +15,7 @@ type AppState = {
 export const AppContext = createContext<AppState>(null);
 
 const client = new ApolloClient({
-  uri: "http://localhost:8000/graphql/query",
+  uri: "/graphql/query",
   cache: new InMemoryCache(),
   credentials: "same-origin",
 });
