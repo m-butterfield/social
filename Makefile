@@ -8,14 +8,6 @@ terraformvarsarg := -var-file=secrets.tfvars
 export DB_SOCKET=host=localhost dbname=social
 export CGO_CFLAGS_ALLOW=-Xpreprocessor
 
-build: build-server build-worker
-
-build-server: run-webpack-prod
-	go build -o bin/server cmd/server/main.go
-
-build-worker:
-	go build -o bin/worker cmd/worker/main.go
-
 deploy: docker-build docker-push
 	$(deployservercommand)
 	$(deployworkercommand)
@@ -26,10 +18,10 @@ deploy-server: docker-build-server docker-push-server
 deploy-worker: docker-build-worker docker-push-worker
 	$(deployworkercommand)
 
-docker-build:
+docker-build: run-webpack-prod
 	docker-compose build
 
-docker-build-server:
+docker-build-server: run-webpack-prod
 	docker-compose build server
 
 docker-build-worker:
