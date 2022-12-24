@@ -28,7 +28,7 @@ export const Header = () => {
 
   return <AppBar
     position="static"
-    color="primary"
+    color="secondary"
     enableColorOnDark={true}
     sx={{backgroundImage: "unset", boxShadow: "unset"}}
   >

@@ -1,3 +1,4 @@
+import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import {IMAGES_BASE_URL} from "app/lib/constants";
 import {Post} from "graphql/types";
@@ -10,7 +11,7 @@ type PostProps = {
 const PostItem = (props: PostProps) => {
   const {post} = props;
   return <>
-    <Typography>{post.user.username}</Typography>
+    <Typography><Link href={`/${post.user.username}`}>{post.user.username}</Link></Typography>
     {
       post.images.map((image) => {
         return <img

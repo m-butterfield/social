@@ -2,12 +2,12 @@ package lib
 
 import (
 	"bytes"
-	"cloud.google.com/go/cloudtasks/apiv2"
+	cloudtasks "cloud.google.com/go/cloudtasks/apiv2"
+	tasks "cloud.google.com/go/cloudtasks/apiv2/cloudtaskspb"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"google.golang.org/genproto/googleapis/cloud/tasks/v2"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"log"
 	"net/http"

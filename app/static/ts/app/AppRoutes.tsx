@@ -4,6 +4,7 @@ import {Route, Routes} from "react-router-dom";
 const CreatePost = React.lazy(() => import("app/create_post"));
 const Home = React.lazy(() => import("app/home"));
 const Login = React.lazy(() => import("app/login"));
+const UserHome = React.lazy(() => import("app/user_home"));
 
 const AppRoutes = () => {
   return <Routes>
@@ -24,14 +25,18 @@ const AppRoutes = () => {
       }
     />
     <Route
-      path="login"
+      path="/login"
       element={
         <React.Suspense fallback={<>...</>}>
           <Login />
         </React.Suspense>
       }
     />
-    <Route path="*" element={<>not found...</>} />
+    <Route path="/:userID" element={
+      <React.Suspense fallback={<>...</>}>
+        <UserHome />
+      </React.Suspense>
+    } />
   </Routes>;
 };
 
