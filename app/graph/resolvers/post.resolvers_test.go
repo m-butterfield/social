@@ -213,14 +213,19 @@ func TestGetUserPostsDoesNotExist(t *testing.T) {
 }
 
 func TestGetPosts(t *testing.T) {
+	w := httptest.NewRecorder()
 	ts := &data.TestStore{
 		TestGetPosts: func() ([]*data.Post, error) {
 			return []*data.Post{{}}, nil
 		},
 	}
-	r := Resolver{DS: ts}
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 
-	result, err := r.Query().GetPosts(context.Background())
+	r := Resolver{DS: ts}
+	result, err := r.Query().GetPosts(ctx)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result))
