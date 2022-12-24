@@ -1,6 +1,6 @@
 package tasks
 
-import "google.golang.org/genproto/googleapis/cloud/tasks/v2"
+import tasks "google.golang.org/genproto/googleapis/cloud/tasks/v2"
 
 type TestTaskCreator struct {
 	TestCreateTask      func(string, string, interface{}) (*tasks.Task, error)
