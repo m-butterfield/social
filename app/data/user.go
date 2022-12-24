@@ -3,14 +3,16 @@ package data
 import (
 	"errors"
 	"gorm.io/gorm"
+	"time"
 )
 
 type User struct {
-	ID        string   `gorm:"type:uuid;default:uuid_generate_v4()" json:"-"`
-	Username  string   `gorm:"type:citext;not null;unique" json:"username"`
-	Password  string   `gorm:"type:varchar(60);not null" json:"password"`
-	Following []Follow `gorm:"foreignKey:FollowerID" json:"-"`
-	Followers []Follow `gorm:"foreignKey:UserID" json:"-"`
+	ID        string    `gorm:"type:uuid;default:uuid_generate_v4()" json:"-"`
+	Username  string    `gorm:"type:citext;not null;unique" json:"username"`
+	Password  string    `gorm:"type:varchar(60);not null" json:"password"`
+	Following []Follow  `gorm:"foreignKey:FollowerID" json:"-"`
+	Followers []Follow  `gorm:"foreignKey:UserID" json:"-"`
+	CreatedAt time.Time `gorm:"not null;default:now()"`
 }
 
 func (s *ds) CreateUser(user *User) error {
