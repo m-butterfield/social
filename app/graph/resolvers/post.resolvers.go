@@ -80,7 +80,19 @@ func (r *queryResolver) GetPosts(ctx context.Context) ([]*data.Post, error) {
 		}
 		return posts, nil
 	}
-	return []*data.Post{}, nil
+	follows, err := r.DS.GetUserFollows(user.ID)
+	if err != nil {
+		return nil, internalError(err)
+	}
+	userIDs := []string{user.ID}
+	for _, follow := range follows {
+		userIDs = append(userIDs, follow.FollowerID)
+	}
+	posts, err := r.DS.GetUsersPosts(userIDs)
+	if err != nil {
+		return nil, internalError(err)
+	}
+	return posts, nil
 }
 
 // GetUserPosts is the resolver for the getUserPosts field.

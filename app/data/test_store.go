@@ -19,6 +19,10 @@ type TestStore struct {
 	GetPostCallCount           int
 	TestGetUserPosts           func(string) ([]*Post, error)
 	GetUserPostsCallCount      int
+	TestGetUsersPosts          func([]string) ([]*Post, error)
+	GetUsersPostsCallCount     int
+	TestGetUserFollows         func(string) ([]*Follow, error)
+	GetUserFollowsCallCount    int
 }
 
 func (t *TestStore) CreateUser(user *User) error {
@@ -72,4 +76,14 @@ func (t *TestStore) PublishPost(string, []*Image) error {
 func (t *TestStore) GetUserPosts(id string) ([]*Post, error) {
 	t.GetUserPostsCallCount += 1
 	return t.TestGetUserPosts(id)
+}
+
+func (t *TestStore) GetUsersPosts(ids []string) ([]*Post, error) {
+	t.GetUsersPostsCallCount += 1
+	return t.TestGetUsersPosts(ids)
+}
+
+func (t *TestStore) GetUserFollows(id string) ([]*Follow, error) {
+	t.GetUserFollowsCallCount += 1
+	return t.TestGetUserFollows(id)
 }

@@ -68,11 +68,15 @@ func (s *ds) GetPosts() ([]*Post, error) {
 }
 
 func (s *ds) GetUserPosts(id string) ([]*Post, error) {
+	return s.GetUsersPosts([]string{id})
+}
+
+func (s *ds) GetUsersPosts(userIDs []string) ([]*Post, error) {
 	var posts []*Post
 	tx := s.db.
 		Preload("Images").
 		Preload("User").
-		Where("user_id = $1", id).
+		Where("user_id in ?", userIDs).
 		Where("published_at IS NOT NULL").
 		Order("created_at DESC").
 		Limit(20).

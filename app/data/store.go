@@ -34,6 +34,7 @@ func getDS() (*ds, error) {
 type Store interface {
 	CreateUser(*User) error
 	GetUser(string) (*User, error)
+	GetUserFollows(string) ([]*Follow, error)
 	CreateAccessToken(*User) (*AccessToken, error)
 	DeleteAccessToken(string) error
 	GetAccessToken(string) (*AccessToken, error)
@@ -43,6 +44,7 @@ type Store interface {
 	GetOrCreateImage(string, int, int) (*Image, error)
 	PublishPost(string, []*Image) error
 	GetUserPosts(string) ([]*Post, error)
+	GetUsersPosts([]string) ([]*Post, error)
 }
 
 type ds struct {
