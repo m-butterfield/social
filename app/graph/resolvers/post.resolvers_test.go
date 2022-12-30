@@ -261,3 +261,22 @@ func TestGetPostsLoggedIn(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result))
 }
+
+func TestGetNewPosts(t *testing.T) {
+	w := httptest.NewRecorder()
+	ts := &data.TestStore{
+		TestGetPosts: func() ([]*data.Post, error) {
+			return []*data.Post{{}}, nil
+		},
+	}
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
+
+	r := Resolver{DS: ts}
+	result, err := r.Query().GetNewPosts(ctx)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result))
+}

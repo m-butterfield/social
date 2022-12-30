@@ -67,6 +67,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		GetNewPosts  func(childComplexity int) int
 		GetPost      func(childComplexity int, id string) int
 		GetPosts     func(childComplexity int) int
 		GetUserPosts func(childComplexity int, userID string) int
@@ -89,6 +90,7 @@ type QueryResolver interface {
 	Me(ctx context.Context) (*data.User, error)
 	GetPost(ctx context.Context, id string) (*data.Post, error)
 	GetPosts(ctx context.Context) ([]*data.Post, error)
+	GetNewPosts(ctx context.Context) ([]*data.Post, error)
 	GetUserPosts(ctx context.Context, userID string) ([]*data.Post, error)
 }
 
@@ -210,6 +212,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Post.User(childComplexity), true
+
+	case "Query.getNewPosts":
+		if e.complexity.Query.GetNewPosts == nil {
+			break
+		}
+
+		return e.complexity.Query.GetNewPosts(childComplexity), true
 
 	case "Query.getPost":
 		if e.complexity.Query.GetPost == nil {
@@ -352,6 +361,7 @@ extend type Mutation {
 extend type Query {
   getPost(id: String!): Post!
   getPosts: [Post!]!
+  getNewPosts: [Post!]!
   getUserPosts(userID: String!): [Post!]!
 }
 `, BuiltIn: false},
@@ -1277,6 +1287,60 @@ func (ec *executionContext) _Query_getPosts(ctx context.Context, field graphql.C
 }
 
 func (ec *executionContext) fieldContext_Query_getPosts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Post_id(ctx, field)
+			case "user":
+				return ec.fieldContext_Post_user(ctx, field)
+			case "body":
+				return ec.fieldContext_Post_body(ctx, field)
+			case "images":
+				return ec.fieldContext_Post_images(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getNewPosts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getNewPosts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetNewPosts(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*data.Post)
+	fc.Result = res
+	return ec.marshalNPost2ᚕᚖgithubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋdataᚐPostᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getNewPosts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3664,6 +3728,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getPosts(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "getNewPosts":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getNewPosts(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

@@ -63,6 +63,7 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
+  getNewPosts: Array<Post>;
   getPost: Post;
   getPosts: Array<Post>;
   getUserPosts: Array<Post>;
