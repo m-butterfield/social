@@ -24,5 +24,5 @@ extend type Query {
   getPost(id: String!): Post!
   getPosts: [Post!]!
   getNewPosts: [Post!]!
-  getUserPosts(userID: String!): [Post!]!
+  getUserPosts(userName: String!): [Post!]!
 }

@@ -77,7 +77,7 @@ export type QueryGetPostArgs = {
 
 
 export type QueryGetUserPostsArgs = {
-  userID: Scalars['String'];
+  userName: Scalars['String'];
 };
 
 export type SignedUploadInput = {

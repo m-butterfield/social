@@ -41,7 +41,7 @@ const AppRoutes = () => {
         </React.Suspense>
       }
     />
-    <Route path="/:userID" element={
+    <Route path="/:userName" element={
       <React.Suspense fallback={<>...</>}>
         <UserHome />
       </React.Suspense>

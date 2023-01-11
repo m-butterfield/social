@@ -70,7 +70,7 @@ type ComplexityRoot struct {
 		GetNewPosts  func(childComplexity int) int
 		GetPost      func(childComplexity int, id string) int
 		GetPosts     func(childComplexity int) int
-		GetUserPosts func(childComplexity int, userID string) int
+		GetUserPosts func(childComplexity int, userName string) int
 		Me           func(childComplexity int) int
 	}
 
@@ -91,7 +91,7 @@ type QueryResolver interface {
 	GetPost(ctx context.Context, id string) (*data.Post, error)
 	GetPosts(ctx context.Context) ([]*data.Post, error)
 	GetNewPosts(ctx context.Context) ([]*data.Post, error)
-	GetUserPosts(ctx context.Context, userID string) ([]*data.Post, error)
+	GetUserPosts(ctx context.Context, userName string) ([]*data.Post, error)
 }
 
 type executableSchema struct {
@@ -249,7 +249,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetUserPosts(childComplexity, args["userID"].(string)), true
+		return e.complexity.Query.GetUserPosts(childComplexity, args["userName"].(string)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -362,7 +362,7 @@ extend type Query {
   getPost(id: String!): Post!
   getPosts: [Post!]!
   getNewPosts: [Post!]!
-  getUserPosts(userID: String!): [Post!]!
+  getUserPosts(userName: String!): [Post!]!
 }
 `, BuiltIn: false},
 	{Name: "../schema/upload.graphqls", Input: `input SignedUploadInput {
@@ -494,14 +494,14 @@ func (ec *executionContext) field_Query_getUserPosts_args(ctx context.Context, r
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["userID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userID"))
+	if tmp, ok := rawArgs["userName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userName"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["userID"] = arg0
+	args["userName"] = arg0
 	return args, nil
 }
 
@@ -1377,7 +1377,7 @@ func (ec *executionContext) _Query_getUserPosts(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetUserPosts(rctx, fc.Args["userID"].(string))
+		return ec.resolvers.Query().GetUserPosts(rctx, fc.Args["userName"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

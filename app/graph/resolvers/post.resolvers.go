@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"errors"
+
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/graph/model"
 	"github.com/m-butterfield/social/app/lib"
@@ -105,8 +106,8 @@ func (r *queryResolver) GetNewPosts(ctx context.Context) ([]*data.Post, error) {
 }
 
 // GetUserPosts is the resolver for the getUserPosts field.
-func (r *queryResolver) GetUserPosts(ctx context.Context, userID string) ([]*data.Post, error) {
-	user, err := r.DS.GetUser(userID)
+func (r *queryResolver) GetUserPosts(ctx context.Context, userName string) ([]*data.Post, error) {
+	user, err := r.DS.GetUser(userName)
 	if err != nil {
 		return nil, internalError(err)
 	}
