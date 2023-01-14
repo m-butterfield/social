@@ -44,6 +44,24 @@ export const Header = () => {
                 component={RouterLink}
                 underline="hover"
                 color="text.primary"
+                to="/"
+                sx={{my: 1, mx: 1.5}}
+              >
+                home
+              </Link>
+              <Link
+                component={RouterLink}
+                underline="hover"
+                color="text.primary"
+                to="/new"
+                sx={{my: 1, mx: 1.5}}
+              >
+                new posts
+              </Link>
+              <Link
+                component={RouterLink}
+                underline="hover"
+                color="text.primary"
                 to="/create_post"
                 sx={{my: 1, mx: 1.5}}
               >
