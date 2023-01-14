@@ -54,6 +54,33 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreds
 	return user, nil
 }
 
+// FollowUser is the resolver for the followUser field.
+func (r *mutationResolver) FollowUser(ctx context.Context, input model.FollowUserInput) (bool, error) {
+	follower, err := loggedInUser(ctx)
+	if err != nil {
+		return false, internalError(err)
+	}
+	if follower == nil {
+		return false, errors.New("not logged in")
+	}
+
+	user, err := r.DS.GetUser(input.Username)
+	if err != nil {
+		return false, internalError(err)
+	}
+	if user == nil {
+		return false, errors.New("user not found")
+	}
+
+	if err = r.DS.CreateFollow(&data.Follow{
+		FollowerID: follower.ID,
+		UserID:     user.ID,
+	}); err != nil && !data.IsDuplicateKeyError(err) {
+		return false, internalError(err)
+	}
+	return true, nil
+}
+
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.UserCreds) (*data.User, error) {
 	input.Username = strings.TrimSpace(input.Username)

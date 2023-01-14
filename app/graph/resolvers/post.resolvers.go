@@ -81,13 +81,9 @@ func (r *queryResolver) GetPosts(ctx context.Context) ([]*data.Post, error) {
 		}
 		return posts, nil
 	}
-	follows, err := r.DS.GetUserFollows(user.ID)
-	if err != nil {
-		return nil, internalError(err)
-	}
 	userIDs := []string{user.ID}
-	for _, follow := range follows {
-		userIDs = append(userIDs, follow.FollowerID)
+	for _, follow := range user.Following {
+		userIDs = append(userIDs, follow.UserID)
 	}
 	posts, err := r.DS.GetUsersPosts(userIDs)
 	if err != nil {
@@ -106,8 +102,8 @@ func (r *queryResolver) GetNewPosts(ctx context.Context) ([]*data.Post, error) {
 }
 
 // GetUserPosts is the resolver for the getUserPosts field.
-func (r *queryResolver) GetUserPosts(ctx context.Context, userName string) ([]*data.Post, error) {
-	user, err := r.DS.GetUser(userName)
+func (r *queryResolver) GetUserPosts(ctx context.Context, username string) ([]*data.Post, error) {
+	user, err := r.DS.GetUser(username)
 	if err != nil {
 		return nil, internalError(err)
 	}

@@ -7,6 +7,10 @@ type CreatePostInput struct {
 	Images []string `json:"images"`
 }
 
+type FollowUserInput struct {
+	Username string `json:"username"`
+}
+
 type SignedUploadInput struct {
 	FileName    string `json:"fileName"`
 	ContentType string `json:"contentType"`

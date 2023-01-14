@@ -7,8 +7,13 @@ input UserCreds {
   password: String!
 }
 
+input FollowUserInput {
+  username: String!
+}
+
 type Mutation {
   createUser(input: UserCreds!): User!
+  followUser(input: FollowUserInput!): Boolean!
   login(input: UserCreds!): User!
   logout: Boolean!
 }

@@ -235,15 +235,14 @@ func TestGetPostsLoggedIn(t *testing.T) {
 	w := httptest.NewRecorder()
 	testUser := &data.User{
 		ID: "123",
+		Following: []data.Follow{
+			{UserID: "456"},
+		},
 	}
 	follower := &data.User{
 		ID: "456",
 	}
 	ts := &data.TestStore{
-		TestGetUserFollows: func(userID string) ([]*data.Follow, error) {
-			assert.Equal(t, testUser.ID, userID)
-			return []*data.Follow{{FollowerID: follower.ID}}, nil
-		},
 		TestGetUsersPosts: func(userIDs []string) ([]*data.Post, error) {
 			assert.Equal(t, []string{testUser.ID, follower.ID}, userIDs)
 			return []*data.Post{{}}, nil

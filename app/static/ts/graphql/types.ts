@@ -17,6 +17,10 @@ export type CreatePostInput = {
   images: Array<Scalars['String']>;
 };
 
+export type FollowUserInput = {
+  username: Scalars['String'];
+};
+
 export type Image = {
   __typename?: 'Image';
   height: Scalars['Int'];
@@ -28,6 +32,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   createPost: Post;
   createUser: User;
+  followUser: Scalars['Boolean'];
   login: User;
   logout: Scalars['Boolean'];
   signedUploadURL: Scalars['String'];
@@ -41,6 +46,11 @@ export type MutationCreatePostArgs = {
 
 export type MutationCreateUserArgs = {
   input: UserCreds;
+};
+
+
+export type MutationFollowUserArgs = {
+  input: FollowUserInput;
 };
 
 
@@ -77,7 +87,7 @@ export type QueryGetPostArgs = {
 
 
 export type QueryGetUserPostsArgs = {
-  userName: Scalars['String'];
+  username: Scalars['String'];
 };
 
 export type SignedUploadInput = {
