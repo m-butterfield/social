@@ -190,7 +190,7 @@ func TestGetUserPosts(t *testing.T) {
 	result, err := r.Query().GetUserPosts(context.Background(), testUser.Username)
 
 	assert.Nil(t, err)
-	assert.Equal(t, len(result), 1)
+	assert.Equal(t, len(result.Posts), 1)
 	assert.Equal(t, 1, ts.GetUserCallCount)
 	assert.Equal(t, 1, ts.GetUserPostsCallCount)
 }
@@ -213,14 +213,68 @@ func TestGetUserPostsDoesNotExist(t *testing.T) {
 }
 
 func TestGetPosts(t *testing.T) {
+	w := httptest.NewRecorder()
 	ts := &data.TestStore{
 		TestGetPosts: func() ([]*data.Post, error) {
 			return []*data.Post{{}}, nil
 		},
 	}
-	r := Resolver{DS: ts}
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 
-	result, err := r.Query().GetPosts(context.Background())
+	r := Resolver{DS: ts}
+	result, err := r.Query().GetPosts(ctx)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result))
+}
+
+func TestGetPostsLoggedIn(t *testing.T) {
+	w := httptest.NewRecorder()
+	testUser := &data.User{
+		ID: "123",
+		Following: []data.Follow{
+			{UserID: "456"},
+		},
+	}
+	follower := &data.User{
+		ID: "456",
+	}
+	ts := &data.TestStore{
+		TestGetUsersPosts: func(userIDs []string) ([]*data.Post, error) {
+			assert.Equal(t, []string{testUser.ID, follower.ID}, userIDs)
+			return []*data.Post{{}}, nil
+		},
+	}
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	gctx.Set(lib.UserContextKey, testUser)
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
+
+	r := Resolver{DS: ts}
+	result, err := r.Query().GetPosts(ctx)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(result))
+}
+
+func TestGetNewPosts(t *testing.T) {
+	w := httptest.NewRecorder()
+	ts := &data.TestStore{
+		TestGetPosts: func() ([]*data.Post, error) {
+			return []*data.Post{{}}, nil
+		},
+	}
+	ctx := context.Background()
+	gin.SetMode(gin.ReleaseMode)
+	gctx, _ := gin.CreateTestContext(w)
+	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
+
+	r := Resolver{DS: ts}
+	result, err := r.Query().GetNewPosts(ctx)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result))

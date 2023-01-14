@@ -1,11 +1,11 @@
 import {ApolloClient, ApolloProvider, InMemoryCache} from "@apollo/client";
+import CssBaseline from "@mui/material/CssBaseline";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Main from "app/Main";
+import {theme} from "app/theme";
 import {User} from "graphql/types";
 import React, {createContext, useState} from "react";
-import CssBaseline from "@mui/material/CssBaseline";
 import {createRoot} from "react-dom/client";
-import {theme} from "app/theme";
 
 type AppState = {
   user: User | null;

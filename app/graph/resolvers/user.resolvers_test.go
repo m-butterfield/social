@@ -26,13 +26,13 @@ func TestCreateUser(t *testing.T) {
 		TestCreateUser: func(user *data.User) error {
 			assert.Equal(t, len(user.Password), 60)
 			user.Password = ""
-			if *user != *expectedUser {
+			if user.ID != expectedUser.ID {
 				t.Error("Unexpected user")
 			}
 			return nil
 		},
 		TestCreateAccessToken: func(user *data.User) (*data.AccessToken, error) {
-			if *user != *expectedUser {
+			if user.ID != expectedUser.ID {
 				t.Error("Unexpected user")
 			}
 			return &data.AccessToken{ID: tokenID, ExpiresAt: expiresAt}, nil
@@ -157,7 +157,7 @@ func TestLoginUser(t *testing.T) {
 		},
 		TestCreateUser: func(*data.User) error { return nil },
 		TestCreateAccessToken: func(user *data.User) (*data.AccessToken, error) {
-			if *user != *expectedUser {
+			if user.ID != expectedUser.ID {
 				t.Error("Unexpected user")
 			}
 			return &data.AccessToken{ID: tokenID, ExpiresAt: expiresAt}, nil

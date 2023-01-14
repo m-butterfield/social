@@ -3,6 +3,10 @@ package data
 type TestStore struct {
 	TestCreateUser             func(*User) error
 	CreateUserCallCount        int
+	TestCreateFollow           func(*Follow) error
+	CreateFollowCallCount      int
+	TestDeleteFollow           func(*Follow) error
+	DeleteFollowCallCount      int
 	TestGetUser                func(string) (*User, error)
 	GetUserCallCount           int
 	TestCreateAccessToken      func(*User) (*AccessToken, error)
@@ -19,11 +23,25 @@ type TestStore struct {
 	GetPostCallCount           int
 	TestGetUserPosts           func(string) ([]*Post, error)
 	GetUserPostsCallCount      int
+	TestGetUsersPosts          func([]string) ([]*Post, error)
+	GetUsersPostsCallCount     int
+	TestGetUserFollows         func(string) ([]*Follow, error)
+	GetUserFollowsCallCount    int
 }
 
 func (t *TestStore) CreateUser(user *User) error {
 	t.CreateUserCallCount += 1
 	return t.TestCreateUser(user)
+}
+
+func (t *TestStore) CreateFollow(follow *Follow) error {
+	t.CreateFollowCallCount += 1
+	return t.TestCreateFollow(follow)
+}
+
+func (t *TestStore) DeleteFollow(follow *Follow) error {
+	t.DeleteFollowCallCount += 1
+	return t.TestDeleteFollow(follow)
 }
 
 func (t *TestStore) GetUser(username string) (*User, error) {
@@ -72,4 +90,14 @@ func (t *TestStore) PublishPost(string, []*Image) error {
 func (t *TestStore) GetUserPosts(id string) ([]*Post, error) {
 	t.GetUserPostsCallCount += 1
 	return t.TestGetUserPosts(id)
+}
+
+func (t *TestStore) GetUsersPosts(ids []string) ([]*Post, error) {
+	t.GetUsersPostsCallCount += 1
+	return t.TestGetUsersPosts(ids)
+}
+
+func (t *TestStore) GetUserFollows(id string) ([]*Follow, error) {
+	t.GetUserFollowsCallCount += 1
+	return t.TestGetUserFollows(id)
 }

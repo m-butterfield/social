@@ -54,7 +54,7 @@ func randomToken() (string, error) {
 
 func (s *ds) GetAccessToken(id string) (*AccessToken, error) {
 	token := &AccessToken{}
-	tx := s.db.Preload("User").First(&token, "id = $1", id)
+	tx := s.db.Preload("User").Preload("User.Following").First(&token, "id = $1", id)
 	if tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, nil

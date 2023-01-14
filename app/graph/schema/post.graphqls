@@ -5,6 +5,11 @@ type Post {
   images: [Image!]!
 }
 
+type UserPostResponse {
+  posts: [Post!]!
+  user: User!
+}
+
 type Image {
   id: String!
   width: Int!
@@ -23,5 +28,6 @@ extend type Mutation {
 extend type Query {
   getPost(id: String!): Post!
   getPosts: [Post!]!
-  getUserPosts(userID: String!): [Post!]!
+  getNewPosts: [Post!]!
+  getUserPosts(username: String!): UserPostResponse!
 }

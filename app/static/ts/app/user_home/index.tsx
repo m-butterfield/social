@@ -1,43 +1,34 @@
-import {gql, useQuery} from "@apollo/client";
+import {useQuery} from "@apollo/client";
+import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import PostItem from "app/lib/components/PostItem";
+import {FollowButton} from "app/user_home/FollowButton";
+import {GET_USER_POSTS} from "app/user_home/queries";
 import {Post} from "graphql/types";
 import React from "react";
 import {useParams} from "react-router-dom";
 
-const GET_POSTS = gql`
-  query getUserPosts($userID: String!) {
-    getUserPosts(userID: $userID) {
-      id
-      body
-      images {
-        id
-        width
-        height
-      }
-      user {
-        username
-      }
-    }
-  }
-`;
 
 const UserHome = () => {
-  const {userID} = useParams();
+  const {username} = useParams();
+  const {data, loading, error} = useQuery(GET_USER_POSTS, {variables: {username: username}});
 
-  const {data, loading, error} = useQuery(GET_POSTS, {variables: {userID: userID}});
-  const message = loading ? "Loading..." : error ? "Error loading posts..." : "";
+  if (loading) {
+    return <Typography>Loading...</Typography>;
+  }
+  if (error) {
+    return <Alert severity="error">Error loading posts</Alert>;
+  }
 
   return <Stack direction="column" alignItems="center" spacing={2} width={800} m="auto">
-    <Typography variant="h2">{userID}</Typography>
-    {message ?
-      <Typography>{message}</Typography>
-      :
-      data.getUserPosts.map((post: Post) => {
-        return <PostItem key={post.id} post={post} />;
-      })
-    }
+    <Typography variant="h2">{username}</Typography>
+    <FollowButton
+      homeUser={data.getUserPosts.user}
+    />
+    {data.getUserPosts.posts.map((post: Post) => {
+      return <PostItem key={post.id} post={post} />;
+    })}
   </Stack>;
 };
 
