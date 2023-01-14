@@ -9,26 +9,31 @@ import {Mutation, Post, MutationFollowUserArgs} from "graphql/types";
 import React, {useContext} from "react";
 import {useParams} from "react-router-dom";
 
-const GET_POSTS = gql`
+const GET_USER_POSTS = gql`
   query getUserPosts($username: String!) {
     getUserPosts(username: $username) {
-      id
-      body
-      images {
+      posts {
         id
-        width
-        height
+        body
+        images {
+          id
+          width
+          height
+        }
+        user {
+          username
+        }
       }
       user {
-        username
+        id
       }
     }
   }
 `;
 
 const FOLLOW_USER = gql`
-  mutation followUser($input: FollowUserInput!) {
-    followUser(input: $input)
+  mutation followUser($username: String!) {
+    followUser(username: $username)
   }
 `;
 
@@ -36,23 +41,41 @@ const UserHome = () => {
   const {user} = useContext(AppContext);
   const {username} = useParams();
 
-  const {data, loading, error} = useQuery(GET_POSTS, {variables: {username: username}});
+  const {data, loading, error} = useQuery(GET_USER_POSTS, {variables: {username: username}});
   const message = loading ? "Loading..." : error ? "Error loading posts..." : "";
 
   const [followUser, {error: followError}] = useMutation<
     Mutation, MutationFollowUserArgs
   >(FOLLOW_USER, {
-    variables: {input: {username: username}}
+    variables: {username: username}
   });
+
+  const isFollowingUser = data && user.following.find(f => f.userID === data.getUserPosts.user.id);
+
+  if (loading) {
+    return <Typography>Loading...</Typography>;
+  }
 
   return <Stack direction="column" alignItems="center" spacing={2} width={800} m="auto">
     <Typography variant="h2">{username}</Typography>
+
     {followError && <Alert severity="error">Error following user: {followError.message}</Alert>}
-    <Button type="submit" variant="contained" onClick={() => followUser()}>Follow</Button>
+    {isFollowingUser ?
+      <Button>Unfollow</Button>
+      :
+      <Button
+        type="submit"
+        variant="contained"
+        onClick={() => followUser()}
+      >
+      Follow
+      </Button>
+    }
+
     {message ?
       <Typography>{message}</Typography>
       :
-      data.getUserPosts.map((post: Post) => {
+      data.getUserPosts.posts.map((post: Post) => {
         return <PostItem key={post.id} post={post} />;
       })
     }

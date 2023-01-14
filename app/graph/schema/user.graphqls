@@ -1,5 +1,11 @@
 type User {
+  id: String!
   username: String!
+  following: [Follow!]!
+}
+
+type Follow {
+  userID: String!
 }
 
 input UserCreds {
@@ -7,15 +13,15 @@ input UserCreds {
   password: String!
 }
 
-input FollowUserInput {
-  username: String!
-}
-
 type Mutation {
   createUser(input: UserCreds!): User!
-  followUser(input: FollowUserInput!): Boolean!
+  followUser(username: String!): Boolean!
   login(input: UserCreds!): User!
   logout: Boolean!
+}
+
+input GetUserInput {
+  username: String!
 }
 
 type Query {

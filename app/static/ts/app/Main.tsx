@@ -13,6 +13,9 @@ const ME = gql`
   query me {
     me {
       username
+      following {
+        userID
+      }
     }
   }
 `;

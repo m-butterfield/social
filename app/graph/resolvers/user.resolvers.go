@@ -55,7 +55,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreds
 }
 
 // FollowUser is the resolver for the followUser field.
-func (r *mutationResolver) FollowUser(ctx context.Context, input model.FollowUserInput) (bool, error) {
+func (r *mutationResolver) FollowUser(ctx context.Context, username string) (bool, error) {
 	follower, err := loggedInUser(ctx)
 	if err != nil {
 		return false, internalError(err)
@@ -64,7 +64,7 @@ func (r *mutationResolver) FollowUser(ctx context.Context, input model.FollowUse
 		return false, errors.New("not logged in")
 	}
 
-	user, err := r.DS.GetUser(input.Username)
+	user, err := r.DS.GetUser(username)
 	if err != nil {
 		return false, internalError(err)
 	}

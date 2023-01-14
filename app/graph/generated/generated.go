@@ -45,6 +45,10 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Follow struct {
+		UserID func(childComplexity int) int
+	}
+
 	Image struct {
 		Height func(childComplexity int) int
 		ID     func(childComplexity int) int
@@ -54,7 +58,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreatePost      func(childComplexity int, input model.CreatePostInput) int
 		CreateUser      func(childComplexity int, input model.UserCreds) int
-		FollowUser      func(childComplexity int, input model.FollowUserInput) int
+		FollowUser      func(childComplexity int, username string) int
 		Login           func(childComplexity int, input model.UserCreds) int
 		Logout          func(childComplexity int) int
 		SignedUploadURL func(childComplexity int, input model.SignedUploadInput) int
@@ -76,13 +80,20 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Username func(childComplexity int) int
+		Following func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Username  func(childComplexity int) int
+	}
+
+	UserPostResponse struct {
+		Posts func(childComplexity int) int
+		User  func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.UserCreds) (*data.User, error)
-	FollowUser(ctx context.Context, input model.FollowUserInput) (bool, error)
+	FollowUser(ctx context.Context, username string) (bool, error)
 	Login(ctx context.Context, input model.UserCreds) (*data.User, error)
 	Logout(ctx context.Context) (bool, error)
 	CreatePost(ctx context.Context, input model.CreatePostInput) (*data.Post, error)
@@ -93,7 +104,7 @@ type QueryResolver interface {
 	GetPost(ctx context.Context, id string) (*data.Post, error)
 	GetPosts(ctx context.Context) ([]*data.Post, error)
 	GetNewPosts(ctx context.Context) ([]*data.Post, error)
-	GetUserPosts(ctx context.Context, username string) ([]*data.Post, error)
+	GetUserPosts(ctx context.Context, username string) (*model.UserPostResponse, error)
 }
 
 type executableSchema struct {
@@ -110,6 +121,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Follow.userID":
+		if e.complexity.Follow.UserID == nil {
+			break
+		}
+
+		return e.complexity.Follow.UserID(childComplexity), true
 
 	case "Image.height":
 		if e.complexity.Image.Height == nil {
@@ -166,7 +184,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.FollowUser(childComplexity, args["input"].(model.FollowUserInput)), true
+		return e.complexity.Mutation.FollowUser(childComplexity, args["username"].(string)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -272,12 +290,40 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Me(childComplexity), true
 
+	case "User.following":
+		if e.complexity.User.Following == nil {
+			break
+		}
+
+		return e.complexity.User.Following(childComplexity), true
+
+	case "User.id":
+		if e.complexity.User.ID == nil {
+			break
+		}
+
+		return e.complexity.User.ID(childComplexity), true
+
 	case "User.username":
 		if e.complexity.User.Username == nil {
 			break
 		}
 
 		return e.complexity.User.Username(childComplexity), true
+
+	case "UserPostResponse.posts":
+		if e.complexity.UserPostResponse.Posts == nil {
+			break
+		}
+
+		return e.complexity.UserPostResponse.Posts(childComplexity), true
+
+	case "UserPostResponse.user":
+		if e.complexity.UserPostResponse.User == nil {
+			break
+		}
+
+		return e.complexity.UserPostResponse.User(childComplexity), true
 
 	}
 	return 0, false
@@ -288,7 +334,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreatePostInput,
-		ec.unmarshalInputFollowUserInput,
+		ec.unmarshalInputGetUserInput,
 		ec.unmarshalInputSignedUploadInput,
 		ec.unmarshalInputUserCreds,
 	)
@@ -358,6 +404,11 @@ var sources = []*ast.Source{
   images: [Image!]!
 }
 
+type UserPostResponse {
+  posts: [Post!]!
+  user: User!
+}
+
 type Image {
   id: String!
   width: Int!
@@ -377,7 +428,7 @@ extend type Query {
   getPost(id: String!): Post!
   getPosts: [Post!]!
   getNewPosts: [Post!]!
-  getUserPosts(username: String!): [Post!]!
+  getUserPosts(username: String!): UserPostResponse!
 }
 `, BuiltIn: false},
 	{Name: "../schema/upload.graphqls", Input: `input SignedUploadInput {
@@ -390,7 +441,13 @@ extend type Mutation {
 }
 `, BuiltIn: false},
 	{Name: "../schema/user.graphqls", Input: `type User {
+  id: String!
   username: String!
+  following: [Follow!]!
+}
+
+type Follow {
+  userID: String!
 }
 
 input UserCreds {
@@ -398,15 +455,15 @@ input UserCreds {
   password: String!
 }
 
-input FollowUserInput {
-  username: String!
-}
-
 type Mutation {
   createUser(input: UserCreds!): User!
-  followUser(input: FollowUserInput!): Boolean!
+  followUser(username: String!): Boolean!
   login(input: UserCreds!): User!
   logout: Boolean!
+}
+
+input GetUserInput {
+  username: String!
 }
 
 type Query {
@@ -453,15 +510,15 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 func (ec *executionContext) field_Mutation_followUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.FollowUserInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNFollowUserInput2githubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋgraphᚋmodelᚐFollowUserInput(ctx, tmp)
+	var arg0 string
+	if tmp, ok := rawArgs["username"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["username"] = arg0
 	return args, nil
 }
 
@@ -577,6 +634,50 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _Follow_userID(ctx context.Context, field graphql.CollectedField, obj *data.Follow) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Follow_userID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Follow_userID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Follow",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _Image_id(ctx context.Context, field graphql.CollectedField, obj *data.Image) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Image_id(ctx, field)
@@ -749,8 +850,12 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "following":
+				return ec.fieldContext_User_following(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -783,7 +888,7 @@ func (ec *executionContext) _Mutation_followUser(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().FollowUser(rctx, fc.Args["input"].(model.FollowUserInput))
+		return ec.resolvers.Mutation().FollowUser(rctx, fc.Args["username"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -863,8 +968,12 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "following":
+				return ec.fieldContext_User_following(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1130,8 +1239,12 @@ func (ec *executionContext) fieldContext_Post_user(ctx context.Context, field gr
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "following":
+				return ec.fieldContext_User_following(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1271,8 +1384,12 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
 			case "username":
 				return ec.fieldContext_User_username(ctx, field)
+			case "following":
+				return ec.fieldContext_User_following(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -1479,9 +1596,9 @@ func (ec *executionContext) _Query_getUserPosts(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*data.Post)
+	res := resTmp.(*model.UserPostResponse)
 	fc.Result = res
-	return ec.marshalNPost2ᚕᚖgithubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋdataᚐPostᚄ(ctx, field.Selections, res)
+	return ec.marshalNUserPostResponse2ᚖgithubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋgraphᚋmodelᚐUserPostResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getUserPosts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1492,16 +1609,12 @@ func (ec *executionContext) fieldContext_Query_getUserPosts(ctx context.Context,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Post_id(ctx, field)
+			case "posts":
+				return ec.fieldContext_UserPostResponse_posts(ctx, field)
 			case "user":
-				return ec.fieldContext_Post_user(ctx, field)
-			case "body":
-				return ec.fieldContext_Post_body(ctx, field)
-			case "images":
-				return ec.fieldContext_Post_images(ctx, field)
+				return ec.fieldContext_UserPostResponse_user(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UserPostResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -1647,6 +1760,50 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *data.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_username(ctx context.Context, field graphql.CollectedField, obj *data.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_username(ctx, field)
 	if err != nil {
@@ -1686,6 +1843,160 @@ func (ec *executionContext) fieldContext_User_username(ctx context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_following(ctx context.Context, field graphql.CollectedField, obj *data.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_following(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Following, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]data.Follow)
+	fc.Result = res
+	return ec.marshalNFollow2ᚕgithubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋdataᚐFollowᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_following(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "userID":
+				return ec.fieldContext_Follow_userID(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Follow", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserPostResponse_posts(ctx context.Context, field graphql.CollectedField, obj *model.UserPostResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserPostResponse_posts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Posts, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*data.Post)
+	fc.Result = res
+	return ec.marshalNPost2ᚕᚖgithubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋdataᚐPostᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserPostResponse_posts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserPostResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Post_id(ctx, field)
+			case "user":
+				return ec.fieldContext_Post_user(ctx, field)
+			case "body":
+				return ec.fieldContext_Post_body(ctx, field)
+			case "images":
+				return ec.fieldContext_Post_images(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserPostResponse_user(ctx context.Context, field graphql.CollectedField, obj *model.UserPostResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserPostResponse_user(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.User, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*data.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋdataᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserPostResponse_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserPostResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "following":
+				return ec.fieldContext_User_following(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	return fc, nil
@@ -3500,8 +3811,8 @@ func (ec *executionContext) unmarshalInputCreatePostInput(ctx context.Context, o
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputFollowUserInput(ctx context.Context, obj interface{}) (model.FollowUserInput, error) {
-	var it model.FollowUserInput
+func (ec *executionContext) unmarshalInputGetUserInput(ctx context.Context, obj interface{}) (model.GetUserInput, error) {
+	var it model.GetUserInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -3607,6 +3918,34 @@ func (ec *executionContext) unmarshalInputUserCreds(ctx context.Context, obj int
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var followImplementors = []string{"Follow"}
+
+func (ec *executionContext) _Follow(ctx context.Context, sel ast.SelectionSet, obj *data.Follow) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, followImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Follow")
+		case "userID":
+
+			out.Values[i] = ec._Follow_userID(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
 
 var imageImplementors = []string{"Image"}
 
@@ -3947,9 +4286,58 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("User")
+		case "id":
+
+			out.Values[i] = ec._User_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "username":
 
 			out.Values[i] = ec._User_username(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "following":
+
+			out.Values[i] = ec._User_following(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var userPostResponseImplementors = []string{"UserPostResponse"}
+
+func (ec *executionContext) _UserPostResponse(ctx context.Context, sel ast.SelectionSet, obj *model.UserPostResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userPostResponseImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserPostResponse")
+		case "posts":
+
+			out.Values[i] = ec._UserPostResponse_posts(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "user":
+
+			out.Values[i] = ec._UserPostResponse_user(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -4303,9 +4691,52 @@ func (ec *executionContext) unmarshalNCreatePostInput2githubᚗcomᚋmᚑbutterf
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNFollowUserInput2githubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋgraphᚋmodelᚐFollowUserInput(ctx context.Context, v interface{}) (model.FollowUserInput, error) {
-	res, err := ec.unmarshalInputFollowUserInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
+func (ec *executionContext) marshalNFollow2githubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋdataᚐFollow(ctx context.Context, sel ast.SelectionSet, v data.Follow) graphql.Marshaler {
+	return ec._Follow(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNFollow2ᚕgithubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋdataᚐFollowᚄ(ctx context.Context, sel ast.SelectionSet, v []data.Follow) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNFollow2githubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋdataᚐFollow(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNImage2ᚕᚖgithubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋdataᚐImageᚄ(ctx context.Context, sel ast.SelectionSet, v []*data.Image) graphql.Marshaler {
@@ -4504,6 +4935,20 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋmᚑbutterfieldᚋsoc
 func (ec *executionContext) unmarshalNUserCreds2githubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋgraphᚋmodelᚐUserCreds(ctx context.Context, v interface{}) (model.UserCreds, error) {
 	res, err := ec.unmarshalInputUserCreds(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUserPostResponse2githubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋgraphᚋmodelᚐUserPostResponse(ctx context.Context, sel ast.SelectionSet, v model.UserPostResponse) graphql.Marshaler {
+	return ec._UserPostResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserPostResponse2ᚖgithubᚗcomᚋmᚑbutterfieldᚋsocialᚋappᚋgraphᚋmodelᚐUserPostResponse(ctx context.Context, sel ast.SelectionSet, v *model.UserPostResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserPostResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

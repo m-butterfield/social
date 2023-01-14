@@ -102,7 +102,7 @@ func (r *queryResolver) GetNewPosts(ctx context.Context) ([]*data.Post, error) {
 }
 
 // GetUserPosts is the resolver for the getUserPosts field.
-func (r *queryResolver) GetUserPosts(ctx context.Context, username string) ([]*data.Post, error) {
+func (r *queryResolver) GetUserPosts(ctx context.Context, username string) (*model.UserPostResponse, error) {
 	user, err := r.DS.GetUser(username)
 	if err != nil {
 		return nil, internalError(err)
@@ -114,5 +114,8 @@ func (r *queryResolver) GetUserPosts(ctx context.Context, username string) ([]*d
 	if err != nil {
 		return nil, internalError(err)
 	}
-	return posts, nil
+	return &model.UserPostResponse{
+		User:  user,
+		Posts: posts,
+	}, nil
 }

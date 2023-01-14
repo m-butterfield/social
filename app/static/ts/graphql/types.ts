@@ -17,7 +17,12 @@ export type CreatePostInput = {
   images: Array<Scalars['String']>;
 };
 
-export type FollowUserInput = {
+export type Follow = {
+  __typename?: 'Follow';
+  userID: Scalars['String'];
+};
+
+export type GetUserInput = {
   username: Scalars['String'];
 };
 
@@ -50,7 +55,7 @@ export type MutationCreateUserArgs = {
 
 
 export type MutationFollowUserArgs = {
-  input: FollowUserInput;
+  username: Scalars['String'];
 };
 
 
@@ -76,7 +81,7 @@ export type Query = {
   getNewPosts: Array<Post>;
   getPost: Post;
   getPosts: Array<Post>;
-  getUserPosts: Array<Post>;
+  getUserPosts: UserPostResponse;
   me?: Maybe<User>;
 };
 
@@ -97,10 +102,18 @@ export type SignedUploadInput = {
 
 export type User = {
   __typename?: 'User';
+  following: Array<Follow>;
+  id: Scalars['String'];
   username: Scalars['String'];
 };
 
 export type UserCreds = {
   password: Scalars['String'];
   username: Scalars['String'];
+};
+
+export type UserPostResponse = {
+  __typename?: 'UserPostResponse';
+  posts: Array<Post>;
+  user: User;
 };
