@@ -190,7 +190,7 @@ func TestGetUserPosts(t *testing.T) {
 	result, err := r.Query().GetUserPosts(context.Background(), testUser.Username)
 
 	assert.Nil(t, err)
-	assert.Equal(t, len(result), 1)
+	assert.Equal(t, len(result.Posts), 1)
 	assert.Equal(t, 1, ts.GetUserCallCount)
 	assert.Equal(t, 1, ts.GetUserPostsCallCount)
 }

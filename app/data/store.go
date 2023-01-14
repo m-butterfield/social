@@ -34,6 +34,7 @@ func getDS() (*ds, error) {
 type Store interface {
 	CreateUser(*User) error
 	CreateFollow(*Follow) error
+	DeleteFollow(*Follow) error
 	GetUser(string) (*User, error)
 	GetUserFollows(string) ([]*Follow, error)
 	CreateAccessToken(*User) (*AccessToken, error)

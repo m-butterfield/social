@@ -41,6 +41,7 @@ export type Mutation = {
   login: User;
   logout: Scalars['Boolean'];
   signedUploadURL: Scalars['String'];
+  unFollowUser: Scalars['Boolean'];
 };
 
 
@@ -66,6 +67,11 @@ export type MutationLoginArgs = {
 
 export type MutationSignedUploadUrlArgs = {
   input: SignedUploadInput;
+};
+
+
+export type MutationUnFollowUserArgs = {
+  username: Scalars['String'];
 };
 
 export type Post = {

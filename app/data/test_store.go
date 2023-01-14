@@ -5,6 +5,8 @@ type TestStore struct {
 	CreateUserCallCount        int
 	TestCreateFollow           func(*Follow) error
 	CreateFollowCallCount      int
+	TestDeleteFollow           func(*Follow) error
+	DeleteFollowCallCount      int
 	TestGetUser                func(string) (*User, error)
 	GetUserCallCount           int
 	TestCreateAccessToken      func(*User) (*AccessToken, error)
@@ -35,6 +37,11 @@ func (t *TestStore) CreateUser(user *User) error {
 func (t *TestStore) CreateFollow(follow *Follow) error {
 	t.CreateFollowCallCount += 1
 	return t.TestCreateFollow(follow)
+}
+
+func (t *TestStore) DeleteFollow(follow *Follow) error {
+	t.DeleteFollowCallCount += 1
+	return t.TestDeleteFollow(follow)
 }
 
 func (t *TestStore) GetUser(username string) (*User, error) {

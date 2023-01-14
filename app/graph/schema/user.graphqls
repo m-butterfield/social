@@ -16,6 +16,7 @@ input UserCreds {
 type Mutation {
   createUser(input: UserCreds!): User!
   followUser(username: String!): Boolean!
+  unFollowUser(username: String!): Boolean!
   login(input: UserCreds!): User!
   logout: Boolean!
 }

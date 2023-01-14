@@ -71,11 +71,53 @@ func (r *mutationResolver) FollowUser(ctx context.Context, username string) (boo
 	if user == nil {
 		return false, errors.New("user not found")
 	}
+	for _, follow := range follower.Following {
+		if follow.UserID == user.ID {
+			return true, nil
+		}
+	}
 
 	if err = r.DS.CreateFollow(&data.Follow{
 		FollowerID: follower.ID,
 		UserID:     user.ID,
 	}); err != nil && !data.IsDuplicateKeyError(err) {
+		return false, internalError(err)
+	}
+	return true, nil
+}
+
+// UnFollowUser is the resolver for the unFollowUser field.
+func (r *mutationResolver) UnFollowUser(ctx context.Context, username string) (bool, error) {
+	follower, err := loggedInUser(ctx)
+	if err != nil {
+		return false, internalError(err)
+	}
+	if follower == nil {
+		return false, errors.New("not logged in")
+	}
+
+	user, err := r.DS.GetUser(username)
+	if err != nil {
+		return false, internalError(err)
+	}
+	if user == nil {
+		return false, errors.New("user not found")
+	}
+	followerFound := false
+	for _, follow := range follower.Following {
+		if follow.UserID == user.ID {
+			followerFound = true
+			break
+		}
+	}
+	if !followerFound {
+		return true, nil
+	}
+
+	if err = r.DS.DeleteFollow(&data.Follow{
+		FollowerID: follower.ID,
+		UserID:     user.ID,
+	}); err != nil {
 		return false, internalError(err)
 	}
 	return true, nil

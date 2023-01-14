@@ -15,6 +15,13 @@ func (s *ds) CreateFollow(follow *Follow) error {
 	return nil
 }
 
+func (s *ds) DeleteFollow(follow *Follow) error {
+	if tx := s.db.Delete(follow); tx.Error != nil {
+		return tx.Error
+	}
+	return nil
+}
+
 func (s *ds) GetUserFollows(userID string) ([]*Follow, error) {
 	var follows []*Follow
 	tx := s.db.
