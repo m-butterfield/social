@@ -25,7 +25,7 @@ const UserHome = () => {
 
   return <Stack direction="column" alignItems="center" spacing={2} width={800} m="auto">
     <Typography variant="h2">{username}</Typography>
-    {user.id !== data.getUserPosts.user.id &&
+    {user && user.id !== data.getUserPosts.user.id &&
       <FollowButton
         homeUser={data.getUserPosts.user}
       />
