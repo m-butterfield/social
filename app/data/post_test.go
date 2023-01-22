@@ -110,7 +110,7 @@ func TestGetUserPosts(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	result, err := s.GetUserPosts(user.ID)
+	result, err := s.GetUserPosts(user.ID, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

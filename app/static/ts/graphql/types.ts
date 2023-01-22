@@ -10,6 +10,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Time: any;
 };
 
 export type CreatePostInput = {
@@ -79,6 +80,7 @@ export type Post = {
   body: Scalars['String'];
   id: Scalars['String'];
   images: Array<Image>;
+  publishedAt?: Maybe<Scalars['Time']>;
   user: User;
 };
 
@@ -92,12 +94,23 @@ export type Query = {
 };
 
 
+export type QueryGetNewPostsArgs = {
+  before?: InputMaybe<Scalars['Time']>;
+};
+
+
 export type QueryGetPostArgs = {
   id: Scalars['String'];
 };
 
 
+export type QueryGetPostsArgs = {
+  before?: InputMaybe<Scalars['Time']>;
+};
+
+
 export type QueryGetUserPostsArgs = {
+  before?: InputMaybe<Scalars['Time']>;
   username: Scalars['String'];
 };
 

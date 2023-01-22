@@ -52,14 +52,19 @@ func (s *ds) GetPost(id string) (*Post, error) {
 	return post, nil
 }
 
-func (s *ds) GetPosts() ([]*Post, error) {
+func (s *ds) GetPosts(before *time.Time) ([]*Post, error) {
 	var posts []*Post
+	if before == nil {
+		now := time.Now()
+		before = &now
+	}
 	tx := s.db.
 		Preload("Images").
 		Preload("User").
 		Where("published_at IS NOT NULL").
+		Where("published_at < ?", before).
 		Order("created_at DESC").
-		Limit(20).
+		Limit(2).
 		Find(&posts)
 	if tx.Error != nil {
 		return nil, tx.Error
@@ -67,19 +72,24 @@ func (s *ds) GetPosts() ([]*Post, error) {
 	return posts, nil
 }
 
-func (s *ds) GetUserPosts(id string) ([]*Post, error) {
-	return s.GetUsersPosts([]string{id})
+func (s *ds) GetUserPosts(id string, before *time.Time) ([]*Post, error) {
+	return s.GetUsersPosts([]string{id}, before)
 }
 
-func (s *ds) GetUsersPosts(userIDs []string) ([]*Post, error) {
+func (s *ds) GetUsersPosts(userIDs []string, before *time.Time) ([]*Post, error) {
 	var posts []*Post
+	if before == nil {
+		now := time.Now()
+		before = &now
+	}
 	tx := s.db.
 		Preload("Images").
 		Preload("User").
 		Where("user_id in ?", userIDs).
 		Where("published_at IS NOT NULL").
+		Where("published_at < ?", before).
 		Order("created_at DESC").
-		Limit(20).
+		Limit(2).
 		Find(&posts)
 	if tx.Error != nil {
 		return nil, tx.Error

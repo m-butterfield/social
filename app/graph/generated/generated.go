@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -66,17 +67,18 @@ type ComplexityRoot struct {
 	}
 
 	Post struct {
-		Body   func(childComplexity int) int
-		ID     func(childComplexity int) int
-		Images func(childComplexity int) int
-		User   func(childComplexity int) int
+		Body        func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Images      func(childComplexity int) int
+		PublishedAt func(childComplexity int) int
+		User        func(childComplexity int) int
 	}
 
 	Query struct {
-		GetNewPosts  func(childComplexity int) int
+		GetNewPosts  func(childComplexity int, before *time.Time) int
 		GetPost      func(childComplexity int, id string) int
-		GetPosts     func(childComplexity int) int
-		GetUserPosts func(childComplexity int, username string) int
+		GetPosts     func(childComplexity int, before *time.Time) int
+		GetUserPosts func(childComplexity int, username string, before *time.Time) int
 		Me           func(childComplexity int) int
 	}
 
@@ -104,9 +106,9 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Me(ctx context.Context) (*data.User, error)
 	GetPost(ctx context.Context, id string) (*data.Post, error)
-	GetPosts(ctx context.Context) ([]*data.Post, error)
-	GetNewPosts(ctx context.Context) ([]*data.Post, error)
-	GetUserPosts(ctx context.Context, username string) (*model.UserPostResponse, error)
+	GetPosts(ctx context.Context, before *time.Time) ([]*data.Post, error)
+	GetNewPosts(ctx context.Context, before *time.Time) ([]*data.Post, error)
+	GetUserPosts(ctx context.Context, username string, before *time.Time) (*model.UserPostResponse, error)
 }
 
 type executableSchema struct {
@@ -252,6 +254,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Post.Images(childComplexity), true
 
+	case "Post.publishedAt":
+		if e.complexity.Post.PublishedAt == nil {
+			break
+		}
+
+		return e.complexity.Post.PublishedAt(childComplexity), true
+
 	case "Post.user":
 		if e.complexity.Post.User == nil {
 			break
@@ -264,7 +273,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetNewPosts(childComplexity), true
+		args, err := ec.field_Query_getNewPosts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetNewPosts(childComplexity, args["before"].(*time.Time)), true
 
 	case "Query.getPost":
 		if e.complexity.Query.GetPost == nil {
@@ -283,7 +297,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.GetPosts(childComplexity), true
+		args, err := ec.field_Query_getPosts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetPosts(childComplexity, args["before"].(*time.Time)), true
 
 	case "Query.getUserPosts":
 		if e.complexity.Query.GetUserPosts == nil {
@@ -295,7 +314,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetUserPosts(childComplexity, args["username"].(string)), true
+		return e.complexity.Query.GetUserPosts(childComplexity, args["username"].(string), args["before"].(*time.Time)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -411,11 +430,14 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/post.graphqls", Input: `type Post {
+	{Name: "../schema/post.graphqls", Input: `scalar Time
+
+type Post {
   id: String!
   user: User!
   body: String!
   images: [Image!]!
+  publishedAt: Time
 }
 
 type UserPostResponse {
@@ -440,9 +462,9 @@ extend type Mutation {
 
 extend type Query {
   getPost(id: String!): Post!
-  getPosts: [Post!]!
-  getNewPosts: [Post!]!
-  getUserPosts(username: String!): UserPostResponse!
+  getPosts(before: Time): [Post!]!
+  getNewPosts(before: Time): [Post!]!
+  getUserPosts(username: String!, before: Time): UserPostResponse!
 }
 `, BuiltIn: false},
 	{Name: "../schema/upload.graphqls", Input: `input SignedUploadInput {
@@ -597,6 +619,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getNewPosts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *time.Time
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg0, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getPost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -612,6 +649,21 @@ func (ec *executionContext) field_Query_getPost_args(ctx context.Context, rawArg
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getPosts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *time.Time
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg0, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getUserPosts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -624,6 +676,15 @@ func (ec *executionContext) field_Query_getUserPosts_args(ctx context.Context, r
 		}
 	}
 	args["username"] = arg0
+	var arg1 *time.Time
+	if tmp, ok := rawArgs["before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("before"))
+		arg1, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg1
 	return args, nil
 }
 
@@ -1168,6 +1229,8 @@ func (ec *executionContext) fieldContext_Mutation_createPost(ctx context.Context
 				return ec.fieldContext_Post_body(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
+			case "publishedAt":
+				return ec.fieldContext_Post_publishedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -1433,6 +1496,47 @@ func (ec *executionContext) fieldContext_Post_images(ctx context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Post_publishedAt(ctx context.Context, field graphql.CollectedField, obj *data.Post) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Post_publishedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PublishedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Post_publishedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_me(ctx, field)
 	if err != nil {
@@ -1529,6 +1633,8 @@ func (ec *executionContext) fieldContext_Query_getPost(ctx context.Context, fiel
 				return ec.fieldContext_Post_body(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
+			case "publishedAt":
+				return ec.fieldContext_Post_publishedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -1561,7 +1667,7 @@ func (ec *executionContext) _Query_getPosts(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetPosts(rctx)
+		return ec.resolvers.Query().GetPosts(rctx, fc.Args["before"].(*time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1594,9 +1700,22 @@ func (ec *executionContext) fieldContext_Query_getPosts(ctx context.Context, fie
 				return ec.fieldContext_Post_body(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
+			case "publishedAt":
+				return ec.fieldContext_Post_publishedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getPosts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -1615,7 +1734,7 @@ func (ec *executionContext) _Query_getNewPosts(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetNewPosts(rctx)
+		return ec.resolvers.Query().GetNewPosts(rctx, fc.Args["before"].(*time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1648,9 +1767,22 @@ func (ec *executionContext) fieldContext_Query_getNewPosts(ctx context.Context, 
 				return ec.fieldContext_Post_body(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
+			case "publishedAt":
+				return ec.fieldContext_Post_publishedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getNewPosts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -1669,7 +1801,7 @@ func (ec *executionContext) _Query_getUserPosts(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetUserPosts(rctx, fc.Args["username"].(string))
+		return ec.resolvers.Query().GetUserPosts(rctx, fc.Args["username"].(string), fc.Args["before"].(*time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2028,6 +2160,8 @@ func (ec *executionContext) fieldContext_UserPostResponse_posts(ctx context.Cont
 				return ec.fieldContext_Post_body(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
+			case "publishedAt":
+				return ec.fieldContext_Post_publishedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -4205,6 +4339,10 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "publishedAt":
+
+			out.Values[i] = ec._Post_publishedAt(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5337,6 +5475,22 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	res := graphql.MarshalString(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
 	return res
 }
 
