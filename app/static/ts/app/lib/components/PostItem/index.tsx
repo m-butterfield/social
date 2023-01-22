@@ -1,4 +1,5 @@
 import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import {IMAGES_BASE_URL} from "app/lib/constants";
 import {Post} from "graphql/types";
@@ -10,7 +11,7 @@ type PostProps = {
 
 const PostItem = (props: PostProps) => {
   const {post} = props;
-  return <>
+  return <Stack direction="column" alignItems="center" spacing={2} m="auto" sx={{paddingBottom: 20}}>
     <Typography><Link href={`/${post.user.username}`}>{post.user.username}</Link></Typography>
     {
       post.images.map((image) => {
@@ -23,7 +24,7 @@ const PostItem = (props: PostProps) => {
       })
     }
     <Typography>{post.body}</Typography>
-  </>;
+  </Stack>;
 };
 
 export default PostItem;
