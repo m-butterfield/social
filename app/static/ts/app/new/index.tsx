@@ -32,7 +32,7 @@ const New = () => {
   const message = loading ? "Loading..." : error ? "Error loading posts..." : "";
   const [posts, setPosts] = useState<Post[]>([]);
   const [noNewData, setNoNewData] = useState(false);
-  const [refetched, setRefetched] = useState(false);
+  const [refetching, setRefetching] = useState(false);
 
   useEffect(() => {
     if (data?.getNewPosts) {
@@ -49,11 +49,11 @@ const New = () => {
       return;
     }
     const refetchEvent = async () => {
-      if (!refetched && window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
-        setRefetched(true);
+      if (!refetching && window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+        setRefetching(true);
         const before = posts[posts.length - 1].publishedAt;
         await refetch({before: before});
-        setRefetched(false);
+        setRefetching(false);
       }
     };
     window.addEventListener("scroll", refetchEvent);
