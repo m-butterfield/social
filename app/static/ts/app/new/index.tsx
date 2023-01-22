@@ -1,7 +1,6 @@
 import {gql, useQuery} from "@apollo/client";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import {setRef} from "@mui/material/utils";
 import {AppContext} from "app";
 import PostItem from "app/lib/components/PostItem";
 import {Post} from "graphql/types";
@@ -32,7 +31,7 @@ const New = () => {
   const message = loading ? "Loading..." : error ? "Error loading posts..." : "";
   const [posts, setPosts] = useState<Post[]>([]);
   const [noNewData, setNoNewData] = useState(false);
-  const [refetching, setRefetching] = useState(false);
+  const [before, setBefore] = useState("");
 
   useEffect(() => {
     if (data?.getNewPosts) {
@@ -45,15 +44,18 @@ const New = () => {
   }, [data]);
 
   useEffect(() => {
+    if (before) {
+      refetch({before: before});
+    }
+  }, [before]);
+
+  useEffect(() => {
     if (noNewData) {
       return;
     }
     const refetchEvent = async () => {
-      if (!refetching && window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
-        setRefetching(true);
-        const before = posts[posts.length - 1].publishedAt;
-        await refetch({before: before});
-        setRefetching(false);
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+        setBefore(posts[posts.length - 1].publishedAt);
       }
     };
     window.addEventListener("scroll", refetchEvent);
@@ -69,6 +71,7 @@ const New = () => {
         return <PostItem key={post.id} post={post} />;
       })
     }
+    {noNewData && <Typography>No more posts.</Typography>}
   </Stack>;
 };
 
