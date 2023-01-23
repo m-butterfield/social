@@ -1,10 +1,10 @@
-import {gql, useQuery} from "@apollo/client";
+import {gql, NetworkStatus, useQuery} from "@apollo/client";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import {AppContext} from "app";
 import PostItem from "app/lib/components/PostItem";
 import {Post} from "graphql/types";
-import React, {useCallback, useContext, useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 
 const GET_NEW_POSTS = gql`
   query getNewPosts($before: Time) {
@@ -27,8 +27,11 @@ const GET_NEW_POSTS = gql`
 const New = () => {
   const {user} = useContext(AppContext);
 
-  const {data, loading, error, refetch} = useQuery(GET_NEW_POSTS);
-  const message = loading ? "Loading..." : error ? "Error loading posts..." : "";
+  const {data, loading, error, refetch, networkStatus} = useQuery(
+    GET_NEW_POSTS, {notifyOnNetworkStatusChange: true}
+  );
+  const refetching = networkStatus === NetworkStatus.setVariables; // this should be NetworkStatus.refetch but there is a bug: https://github.com/apollographql/apollo-client/issues/10391
+  const message = loading && !refetching ? "Loading..." : error ? "Error loading posts..." : "";
   const [posts, setPosts] = useState<Post[]>([]);
   const [noNewData, setNoNewData] = useState(false);
   const [before, setBefore] = useState("");
@@ -54,7 +57,7 @@ const New = () => {
       return;
     }
     const refetchEvent = async () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 50) {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
         setBefore(posts[posts.length - 1].publishedAt);
       }
     };
@@ -71,6 +74,7 @@ const New = () => {
         return <PostItem key={post.id} post={post} />;
       })
     }
+    {refetching && <Typography>Loading more posts...</Typography>}
     {noNewData && <Typography>No more posts.</Typography>}
   </Stack>;
 };
