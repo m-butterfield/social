@@ -3,7 +3,7 @@ import ScrollablePosts from "app/lib/components/ScrollablePosts";
 import React from "react";
 
 const GET_POSTS = gql`
-  query getPostsCoolStuff($before: Time) {
+  query getPosts($before: Time) {
     getPosts(before: $before) {
       id
       body
