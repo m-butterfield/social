@@ -1,13 +1,11 @@
+scalar Time
+
 type Post {
   id: String!
   user: User!
   body: String!
   images: [Image!]!
-}
-
-type UserPostResponse {
-  posts: [Post!]!
-  user: User!
+  publishedAt: Time
 }
 
 type Image {
@@ -27,7 +25,7 @@ extend type Mutation {
 
 extend type Query {
   getPost(id: String!): Post!
-  getPosts: [Post!]!
-  getNewPosts: [Post!]!
-  getUserPosts(username: String!): UserPostResponse!
+  getPosts(before: Time): [Post!]!
+  getNewPosts(before: Time): [Post!]!
+  getUserPosts(username: String!, before: Time): [Post!]!
 }

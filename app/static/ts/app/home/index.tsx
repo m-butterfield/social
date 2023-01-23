@@ -1,14 +1,10 @@
-import {gql, useQuery} from "@apollo/client";
-import Stack from "@mui/material/Stack";
-import {AppContext} from "app";
-import PostItem from "app/lib/components/PostItem";
-import {Post} from "graphql/types";
-import React, {useContext} from "react";
-import Typography from "@mui/material/Typography";
+import {gql} from "@apollo/client";
+import ScrollablePosts from "app/lib/components/ScrollablePosts";
+import React from "react";
 
 const GET_POSTS = gql`
-  query getPosts {
-    getPosts {
+  query getPosts($before: Time) {
+    getPosts(before: $before) {
       id
       body
       images {
@@ -19,26 +15,16 @@ const GET_POSTS = gql`
       user {
         username
       }
+      publishedAt
     }
   }
 `;
 
 const Home = () => {
-  const {user} = useContext(AppContext);
-
-  const {data, loading, error} = useQuery(GET_POSTS);
-  const message = loading ? "Loading..." : error ? "Error loading posts..." : "";
-
-  return <Stack direction="column" alignItems="center" spacing={2} width={800} m="auto">
-    <Typography variant="h2">Welcome{user && `, ${user.username}.`}</Typography>
-    {message ?
-      <Typography>{message}</Typography>
-      :
-      data.getPosts.map((post: Post) => {
-        return <PostItem key={post.id} post={post} />;
-      })
-    }
-  </Stack>;
+  return <ScrollablePosts
+    query={GET_POSTS}
+    queryName={"getPosts"}
+  />;
 };
 
 export default Home;

@@ -1,5 +1,7 @@
 package data
 
+import "time"
+
 type TestStore struct {
 	TestCreateUser             func(*User) error
 	CreateUserCallCount        int
@@ -17,13 +19,13 @@ type TestStore struct {
 	GetAccessTokenCallCount    int
 	TestCreatePost             func(*Post) error
 	CreatePostCallCount        int
-	TestGetPosts               func() ([]*Post, error)
+	TestGetPosts               func(*time.Time) ([]*Post, error)
 	GetPostsCallCount          int
 	TestGetPost                func(string) (*Post, error)
 	GetPostCallCount           int
-	TestGetUserPosts           func(string) ([]*Post, error)
+	TestGetUserPosts           func(string, *time.Time) ([]*Post, error)
 	GetUserPostsCallCount      int
-	TestGetUsersPosts          func([]string) ([]*Post, error)
+	TestGetUsersPosts          func([]string, *time.Time) ([]*Post, error)
 	GetUsersPostsCallCount     int
 	TestGetUserFollows         func(string) ([]*Follow, error)
 	GetUserFollowsCallCount    int
@@ -69,9 +71,9 @@ func (t *TestStore) CreatePost(post *Post) error {
 	return t.TestCreatePost(post)
 }
 
-func (t *TestStore) GetPosts() ([]*Post, error) {
+func (t *TestStore) GetPosts(before *time.Time) ([]*Post, error) {
 	t.GetPostsCallCount += 1
-	return t.TestGetPosts()
+	return t.TestGetPosts(before)
 }
 
 func (t *TestStore) GetPost(id string) (*Post, error) {
@@ -87,14 +89,14 @@ func (t *TestStore) PublishPost(string, []*Image) error {
 	panic("should not be called")
 }
 
-func (t *TestStore) GetUserPosts(id string) ([]*Post, error) {
+func (t *TestStore) GetUserPosts(id string, before *time.Time) ([]*Post, error) {
 	t.GetUserPostsCallCount += 1
-	return t.TestGetUserPosts(id)
+	return t.TestGetUserPosts(id, before)
 }
 
-func (t *TestStore) GetUsersPosts(ids []string) ([]*Post, error) {
+func (t *TestStore) GetUsersPosts(ids []string, before *time.Time) ([]*Post, error) {
 	t.GetUsersPostsCallCount += 1
-	return t.TestGetUsersPosts(ids)
+	return t.TestGetUsersPosts(ids, before)
 }
 
 func (t *TestStore) GetUserFollows(id string) ([]*Follow, error) {

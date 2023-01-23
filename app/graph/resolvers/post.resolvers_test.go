@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestCreatePostSubmit(t *testing.T) {
@@ -178,7 +179,7 @@ func TestGetUserPosts(t *testing.T) {
 		TestGetAccessToken: func(id string) (*data.AccessToken, error) {
 			return &data.AccessToken{ID: "1234"}, nil
 		},
-		TestGetUserPosts: func(id string) ([]*data.Post, error) {
+		TestGetUserPosts: func(id string, before *time.Time) ([]*data.Post, error) {
 			assert.Equal(t, testUser.ID, id)
 			return []*data.Post{{
 				Body: "hello.",
@@ -187,10 +188,10 @@ func TestGetUserPosts(t *testing.T) {
 	}
 	r := Resolver{DS: ts}
 
-	result, err := r.Query().GetUserPosts(context.Background(), testUser.Username)
+	result, err := r.Query().GetUserPosts(context.Background(), testUser.Username, nil)
 
 	assert.Nil(t, err)
-	assert.Equal(t, len(result.Posts), 1)
+	assert.Equal(t, len(result), 1)
 	assert.Equal(t, 1, ts.GetUserCallCount)
 	assert.Equal(t, 1, ts.GetUserPostsCallCount)
 }
@@ -206,7 +207,7 @@ func TestGetUserPostsDoesNotExist(t *testing.T) {
 	}
 	r := Resolver{DS: ts}
 
-	result, err := r.Query().GetUserPosts(context.Background(), "none")
+	result, err := r.Query().GetUserPosts(context.Background(), "none", nil)
 
 	assert.Nil(t, result)
 	assert.Equal(t, "user not found", err.Error())
@@ -215,7 +216,7 @@ func TestGetUserPostsDoesNotExist(t *testing.T) {
 func TestGetPosts(t *testing.T) {
 	w := httptest.NewRecorder()
 	ts := &data.TestStore{
-		TestGetPosts: func() ([]*data.Post, error) {
+		TestGetPosts: func(*time.Time) ([]*data.Post, error) {
 			return []*data.Post{{}}, nil
 		},
 	}
@@ -225,7 +226,7 @@ func TestGetPosts(t *testing.T) {
 	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 
 	r := Resolver{DS: ts}
-	result, err := r.Query().GetPosts(ctx)
+	result, err := r.Query().GetPosts(ctx, nil)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result))
@@ -243,7 +244,7 @@ func TestGetPostsLoggedIn(t *testing.T) {
 		ID: "456",
 	}
 	ts := &data.TestStore{
-		TestGetUsersPosts: func(userIDs []string) ([]*data.Post, error) {
+		TestGetUsersPosts: func(userIDs []string, before *time.Time) ([]*data.Post, error) {
 			assert.Equal(t, []string{testUser.ID, follower.ID}, userIDs)
 			return []*data.Post{{}}, nil
 		},
@@ -255,7 +256,7 @@ func TestGetPostsLoggedIn(t *testing.T) {
 	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 
 	r := Resolver{DS: ts}
-	result, err := r.Query().GetPosts(ctx)
+	result, err := r.Query().GetPosts(ctx, nil)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result))
@@ -264,7 +265,7 @@ func TestGetPostsLoggedIn(t *testing.T) {
 func TestGetNewPosts(t *testing.T) {
 	w := httptest.NewRecorder()
 	ts := &data.TestStore{
-		TestGetPosts: func() ([]*data.Post, error) {
+		TestGetPosts: func(*time.Time) ([]*data.Post, error) {
 			return []*data.Post{{}}, nil
 		},
 	}
@@ -274,7 +275,7 @@ func TestGetNewPosts(t *testing.T) {
 	ctx = context.WithValue(ctx, lib.GinContextKey, gctx)
 
 	r := Resolver{DS: ts}
-	result, err := r.Query().GetNewPosts(ctx)
+	result, err := r.Query().GetNewPosts(ctx, nil)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(result))

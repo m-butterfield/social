@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"os"
+	"time"
 )
 
 func Connect() (Store, error) {
@@ -41,12 +42,12 @@ type Store interface {
 	DeleteAccessToken(string) error
 	GetAccessToken(string) (*AccessToken, error)
 	CreatePost(*Post) error
-	GetPosts() ([]*Post, error)
+	GetPosts(*time.Time) ([]*Post, error)
 	GetPost(string) (*Post, error)
 	GetOrCreateImage(string, int, int) (*Image, error)
 	PublishPost(string, []*Image) error
-	GetUserPosts(string) ([]*Post, error)
-	GetUsersPosts([]string) ([]*Post, error)
+	GetUserPosts(string, *time.Time) ([]*Post, error)
+	GetUsersPosts([]string, *time.Time) ([]*Post, error)
 }
 
 type ds struct {

@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/m-butterfield/social/app/data"
 	"github.com/m-butterfield/social/app/graph/model"
@@ -69,13 +70,13 @@ func (r *queryResolver) GetPost(ctx context.Context, id string) (*data.Post, err
 }
 
 // GetPosts is the resolver for the getPosts field.
-func (r *queryResolver) GetPosts(ctx context.Context) ([]*data.Post, error) {
+func (r *queryResolver) GetPosts(ctx context.Context, before *time.Time) ([]*data.Post, error) {
 	user, err := loggedInUser(ctx)
 	if err != nil {
 		return nil, internalError(err)
 	}
 	if user == nil {
-		posts, err := r.DS.GetPosts()
+		posts, err := r.DS.GetPosts(before)
 		if err != nil {
 			return nil, internalError(err)
 		}
@@ -85,7 +86,7 @@ func (r *queryResolver) GetPosts(ctx context.Context) ([]*data.Post, error) {
 	for _, follow := range user.Following {
 		userIDs = append(userIDs, follow.UserID)
 	}
-	posts, err := r.DS.GetUsersPosts(userIDs)
+	posts, err := r.DS.GetUsersPosts(userIDs, before)
 	if err != nil {
 		return nil, internalError(err)
 	}
@@ -93,8 +94,8 @@ func (r *queryResolver) GetPosts(ctx context.Context) ([]*data.Post, error) {
 }
 
 // GetNewPosts is the resolver for the getNewPosts field.
-func (r *queryResolver) GetNewPosts(ctx context.Context) ([]*data.Post, error) {
-	posts, err := r.DS.GetPosts()
+func (r *queryResolver) GetNewPosts(ctx context.Context, before *time.Time) ([]*data.Post, error) {
+	posts, err := r.DS.GetPosts(before)
 	if err != nil {
 		return nil, internalError(err)
 	}
@@ -102,7 +103,8 @@ func (r *queryResolver) GetNewPosts(ctx context.Context) ([]*data.Post, error) {
 }
 
 // GetUserPosts is the resolver for the getUserPosts field.
-func (r *queryResolver) GetUserPosts(ctx context.Context, username string) (*model.UserPostResponse, error) {
+func (r *queryResolver) GetUserPosts(ctx context.Context, username string, before *time.Time) ([]*data.Post, error) {
+	// could optimize this to be part of the where clause when fetching posts...?
 	user, err := r.DS.GetUser(username)
 	if err != nil {
 		return nil, internalError(err)
@@ -110,12 +112,9 @@ func (r *queryResolver) GetUserPosts(ctx context.Context, username string) (*mod
 	if user == nil {
 		return nil, errors.New("user not found")
 	}
-	posts, err := r.DS.GetUserPosts(user.ID)
+	posts, err := r.DS.GetUserPosts(user.ID, before)
 	if err != nil {
 		return nil, internalError(err)
 	}
-	return &model.UserPostResponse{
-		User:  user,
-		Posts: posts,
-	}, nil
+	return posts, nil
 }

@@ -10,6 +10,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Time: any;
 };
 
 export type CreatePostInput = {
@@ -79,6 +80,7 @@ export type Post = {
   body: Scalars['String'];
   id: Scalars['String'];
   images: Array<Image>;
+  publishedAt?: Maybe<Scalars['Time']>;
   user: User;
 };
 
@@ -87,8 +89,14 @@ export type Query = {
   getNewPosts: Array<Post>;
   getPost: Post;
   getPosts: Array<Post>;
-  getUserPosts: UserPostResponse;
-  me?: Maybe<User>;
+  getUser: User;
+  getUserPosts: Array<Post>;
+  me: User;
+};
+
+
+export type QueryGetNewPostsArgs = {
+  before?: InputMaybe<Scalars['Time']>;
 };
 
 
@@ -97,7 +105,18 @@ export type QueryGetPostArgs = {
 };
 
 
+export type QueryGetPostsArgs = {
+  before?: InputMaybe<Scalars['Time']>;
+};
+
+
+export type QueryGetUserArgs = {
+  username: Scalars['String'];
+};
+
+
 export type QueryGetUserPostsArgs = {
+  before?: InputMaybe<Scalars['Time']>;
   username: Scalars['String'];
 };
 
@@ -116,10 +135,4 @@ export type User = {
 export type UserCreds = {
   password: Scalars['String'];
   username: Scalars['String'];
-};
-
-export type UserPostResponse = {
-  __typename?: 'UserPostResponse';
-  posts: Array<Post>;
-  user: User;
 };
