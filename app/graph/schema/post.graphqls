@@ -8,11 +8,6 @@ type Post {
   publishedAt: Time
 }
 
-type UserPostResponse {
-  posts: [Post!]!
-  user: User!
-}
-
 type Image {
   id: String!
   width: Int!
@@ -32,5 +27,5 @@ extend type Query {
   getPost(id: String!): Post!
   getPosts(before: Time): [Post!]!
   getNewPosts(before: Time): [Post!]!
-  getUserPosts(username: String!, before: Time): UserPostResponse!
+  getUserPosts(username: String!, before: Time): [Post!]!
 }

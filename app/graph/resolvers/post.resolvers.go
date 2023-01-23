@@ -103,7 +103,8 @@ func (r *queryResolver) GetNewPosts(ctx context.Context, before *time.Time) ([]*
 }
 
 // GetUserPosts is the resolver for the getUserPosts field.
-func (r *queryResolver) GetUserPosts(ctx context.Context, username string, before *time.Time) (*model.UserPostResponse, error) {
+func (r *queryResolver) GetUserPosts(ctx context.Context, username string, before *time.Time) ([]*data.Post, error) {
+	// could optimize this to be part of the where clause when fetching posts...?
 	user, err := r.DS.GetUser(username)
 	if err != nil {
 		return nil, internalError(err)
@@ -115,8 +116,5 @@ func (r *queryResolver) GetUserPosts(ctx context.Context, username string, befor
 	if err != nil {
 		return nil, internalError(err)
 	}
-	return &model.UserPostResponse{
-		User:  user,
-		Posts: posts,
-	}, nil
+	return posts, nil
 }

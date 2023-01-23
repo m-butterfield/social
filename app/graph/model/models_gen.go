@@ -2,10 +2,6 @@
 
 package model
 
-import (
-	"github.com/m-butterfield/social/app/data"
-)
-
 type CreatePostInput struct {
 	Body   string   `json:"body"`
 	Images []string `json:"images"`
@@ -23,9 +19,4 @@ type SignedUploadInput struct {
 type UserCreds struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-}
-
-type UserPostResponse struct {
-	Posts []*data.Post `json:"posts"`
-	User  *data.User   `json:"user"`
 }

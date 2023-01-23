@@ -26,5 +26,6 @@ input GetUserInput {
 }
 
 type Query {
-  me: User
+  me: User!
+  getUser(username: String!): User!
 }

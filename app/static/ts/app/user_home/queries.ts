@@ -1,24 +1,28 @@
 import {gql} from "@apollo/client";
 
 export const GET_USER_POSTS = gql`
-  query getUserPosts($username: String!) {
-    getUserPosts(username: $username) {
-      posts {
+  query getUserPosts($username: String!, $before: Time) {
+    getUserPosts(username: $username, before: $before) {
+      id
+      body
+      images {
         id
-        body
-        images {
-          id
-          width
-          height
-        }
-        user {
-          username
-        }
+        width
+        height
       }
       user {
-        id
         username
       }
+      publishedAt
+    }
+  }
+`;
+
+export const GET_USER = gql`
+  query getUser($username: String!) {
+    getUser(username: $username) {
+      id
+      username
     }
   }
 `;

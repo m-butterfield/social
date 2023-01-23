@@ -89,8 +89,9 @@ export type Query = {
   getNewPosts: Array<Post>;
   getPost: Post;
   getPosts: Array<Post>;
-  getUserPosts: UserPostResponse;
-  me?: Maybe<User>;
+  getUser: User;
+  getUserPosts: Array<Post>;
+  me: User;
 };
 
 
@@ -106,6 +107,11 @@ export type QueryGetPostArgs = {
 
 export type QueryGetPostsArgs = {
   before?: InputMaybe<Scalars['Time']>;
+};
+
+
+export type QueryGetUserArgs = {
+  username: Scalars['String'];
 };
 
 
@@ -129,10 +135,4 @@ export type User = {
 export type UserCreds = {
   password: Scalars['String'];
   username: Scalars['String'];
-};
-
-export type UserPostResponse = {
-  __typename?: 'UserPostResponse';
-  posts: Array<Post>;
-  user: User;
 };

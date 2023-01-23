@@ -173,6 +173,18 @@ func (r *queryResolver) Me(ctx context.Context) (*data.User, error) {
 	return user, nil
 }
 
+// GetUser is the resolver for the getUser field.
+func (r *queryResolver) GetUser(ctx context.Context, username string) (*data.User, error) {
+	user, err := r.DS.GetUser(username)
+	if err != nil {
+		return nil, internalError(err)
+	}
+	if user == nil {
+		return nil, errors.New("user not found")
+	}
+	return user, nil
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
