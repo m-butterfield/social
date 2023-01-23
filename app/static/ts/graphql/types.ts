@@ -91,7 +91,7 @@ export type Query = {
   getPosts: Array<Post>;
   getUser: User;
   getUserPosts: Array<Post>;
-  me: User;
+  me?: Maybe<User>;
 };
 
 
