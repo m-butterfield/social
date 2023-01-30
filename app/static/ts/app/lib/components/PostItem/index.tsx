@@ -4,7 +4,6 @@ import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import Comments from "app/lib/components/PostItem/Comments";
-import NewComment from "app/lib/components/PostItem/NewComment";
 import {IMAGES_BASE_URL} from "app/lib/constants";
 import {Post} from "graphql/types";
 import React, {useState} from "react";
@@ -16,10 +15,10 @@ type PostProps = {
 const PostItem = (props: PostProps) => {
   const {post} = props;
   const [showComments, setShowComments] = useState(false);
+  const [numComments, setNumComments] = useState(post.commentCount);
   return <Box sx={{paddingBottom: 10}}>
-    <Card sx={{paddingX: 4, paddingY: 2, borderRadius: 0, backgroundColor: "#303030"}}>
-      <Stack direction="column" alignItems="center" spacing={2} m="auto">
-        <Typography><Link href={`/${post.user.username}`}>{post.user.username}</Link></Typography>
+    <Card sx={{paddingX: 4, paddingY: 4, borderRadius: 0, backgroundColor: "#303030"}}>
+      <Stack direction="column" alignItems="flex-start" spacing={2}>
         {
           post.images.map((image) => {
             return <img
@@ -30,18 +29,26 @@ const PostItem = (props: PostProps) => {
             />;
           })
         }
-        <Typography>{post.body}</Typography>
+        <Typography><Link href={`/${post.user.username}`}>{post.user.username}</Link>: {post.body}</Typography>
         {showComments ?
           <>
-            <Comments post={post} />
-            <NewComment post={post} />
+            <Link
+              component="button"
+              fontSize="1rem"
+              onClick={() => setShowComments(false)}
+            >hide comments</Link>
+            <Box sx={{width: "100%"}}>
+              <Stack direction="column" spacing={2}>
+                <Comments post={post} setNumComments={setNumComments} />
+              </Stack>
+            </Box>
           </>
           :
           <Link
             component="button"
             fontSize="1rem"
             onClick={() => setShowComments(true)}
-          >view comments</Link>
+          >{numComments ? `view ${numComments} comments` : "add comment"}</Link>
         }
       </Stack>
     </Card>

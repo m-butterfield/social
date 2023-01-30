@@ -75,11 +75,12 @@ type ComplexityRoot struct {
 	}
 
 	Post struct {
-		Body        func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Images      func(childComplexity int) int
-		PublishedAt func(childComplexity int) int
-		User        func(childComplexity int) int
+		Body         func(childComplexity int) int
+		CommentCount func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Images       func(childComplexity int) int
+		PublishedAt  func(childComplexity int) int
+		User         func(childComplexity int) int
 	}
 
 	Query struct {
@@ -287,6 +288,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Post.Body(childComplexity), true
+
+	case "Post.commentCount":
+		if e.complexity.Post.CommentCount == nil {
+			break
+		}
+
+		return e.complexity.Post.CommentCount(childComplexity), true
 
 	case "Post.id":
 		if e.complexity.Post.ID == nil {
@@ -511,6 +519,7 @@ type Post {
   body: String!
   images: [Image!]!
   publishedAt: Time
+  commentCount: Int!
 }
 
 type Image {
@@ -1612,6 +1621,8 @@ func (ec *executionContext) fieldContext_Mutation_createPost(ctx context.Context
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
 				return ec.fieldContext_Post_publishedAt(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_Post_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -1918,6 +1929,50 @@ func (ec *executionContext) fieldContext_Post_publishedAt(ctx context.Context, f
 	return fc, nil
 }
 
+func (ec *executionContext) _Post_commentCount(ctx context.Context, field graphql.CollectedField, obj *data.Post) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Post_commentCount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CommentCount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Post_commentCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_me(ctx, field)
 	if err != nil {
@@ -2144,6 +2199,8 @@ func (ec *executionContext) fieldContext_Query_getPost(ctx context.Context, fiel
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
 				return ec.fieldContext_Post_publishedAt(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_Post_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -2211,6 +2268,8 @@ func (ec *executionContext) fieldContext_Query_getPosts(ctx context.Context, fie
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
 				return ec.fieldContext_Post_publishedAt(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_Post_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -2278,6 +2337,8 @@ func (ec *executionContext) fieldContext_Query_getNewPosts(ctx context.Context, 
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
 				return ec.fieldContext_Post_publishedAt(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_Post_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -2345,6 +2406,8 @@ func (ec *executionContext) fieldContext_Query_getUserPosts(ctx context.Context,
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
 				return ec.fieldContext_Post_publishedAt(ctx, field)
+			case "commentCount":
+				return ec.fieldContext_Post_commentCount(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
@@ -4808,6 +4871,13 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._Post_publishedAt(ctx, field, obj)
 
+		case "commentCount":
+
+			out.Values[i] = ec._Post_commentCount(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

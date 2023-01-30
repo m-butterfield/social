@@ -32,7 +32,6 @@ func (s *ds) GetComments(postID string, before *time.Time) ([]*Comment, error) {
 		Where("post_id = ?", postID).
 		Where("created_at < ?", before).
 		Order("created_at").
-		Limit(2).
 		Find(&comments)
 	if tx.Error != nil {
 		return nil, tx.Error

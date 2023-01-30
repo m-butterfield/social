@@ -6,6 +6,7 @@ type Post {
   body: String!
   images: [Image!]!
   publishedAt: Time
+  commentCount: Int!
 }
 
 type Image {

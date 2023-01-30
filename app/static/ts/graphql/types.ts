@@ -93,6 +93,7 @@ export type MutationUnFollowUserArgs = {
 export type Post = {
   __typename?: 'Post';
   body: Scalars['String'];
+  commentCount: Scalars['Int'];
   id: Scalars['String'];
   images: Array<Image>;
   publishedAt?: Maybe<Scalars['Time']>;

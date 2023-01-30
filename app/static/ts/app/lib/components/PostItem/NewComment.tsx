@@ -7,11 +7,12 @@ import {Mutation, MutationCreateCommentArgs, Post} from "graphql/types";
 import React, {useState} from "react";
 
 type CommentsProps = {
-  post: Post
+  post: Post;
+  refetch: () => void;
 }
 
 const NewComment = (props: CommentsProps) => {
-  const {post} = props;
+  const {post, refetch} = props;
   const [comment, setComment] = useState("");
 
   const [createComment, {loading, error}] = useMutation<
@@ -26,7 +27,7 @@ const NewComment = (props: CommentsProps) => {
       label="comment"
       multiline
       maxRows={20}
-      sx={{width: "75ch"}}
+      fullWidth
       placeholder="write a new comment..."
       value={comment}
       onChange={(e) => setComment(e.target.value)}
@@ -37,7 +38,10 @@ const NewComment = (props: CommentsProps) => {
       disabled={!comment || loading}
       onClick={(e) => {
         e.preventDefault();
-        createComment().then(() => setComment(""));
+        createComment().then(() => {
+          refetch();
+          setComment("");
+        });
       }}
     >
       submit
