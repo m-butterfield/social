@@ -13,6 +13,14 @@ export type Scalars = {
   Time: any;
 };
 
+export type Comment = {
+  __typename?: 'Comment';
+  body: Scalars['String'];
+  createdAt: Scalars['Time'];
+  id: Scalars['String'];
+  user: User;
+};
+
 export type CreatePostInput = {
   body: Scalars['String'];
   images: Array<Scalars['String']>;
@@ -36,6 +44,7 @@ export type Image = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createComment: Comment;
   createPost: Post;
   createUser: User;
   followUser: Scalars['Boolean'];
@@ -43,6 +52,12 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   signedUploadURL: Scalars['String'];
   unFollowUser: Scalars['Boolean'];
+};
+
+
+export type MutationCreateCommentArgs = {
+  body: Scalars['String'];
+  postID: Scalars['String'];
 };
 
 
@@ -78,6 +93,7 @@ export type MutationUnFollowUserArgs = {
 export type Post = {
   __typename?: 'Post';
   body: Scalars['String'];
+  commentCount: Scalars['Int'];
   id: Scalars['String'];
   images: Array<Image>;
   publishedAt?: Maybe<Scalars['Time']>;
@@ -86,12 +102,19 @@ export type Post = {
 
 export type Query = {
   __typename?: 'Query';
+  getComments: Array<Comment>;
   getNewPosts: Array<Post>;
   getPost: Post;
   getPosts: Array<Post>;
   getUser: User;
   getUserPosts: Array<Post>;
   me?: Maybe<User>;
+};
+
+
+export type QueryGetCommentsArgs = {
+  before?: InputMaybe<Scalars['Time']>;
+  postID: Scalars['String'];
 };
 
 

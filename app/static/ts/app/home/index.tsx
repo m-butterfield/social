@@ -16,6 +16,7 @@ const GET_POSTS = gql`
         username
       }
       publishedAt
+      commentCount
     }
   }
 `;

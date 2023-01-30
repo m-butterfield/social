@@ -48,6 +48,8 @@ type Store interface {
 	PublishPost(string, []*Image) error
 	GetUserPosts(string, *time.Time) ([]*Post, error)
 	GetUsersPosts([]string, *time.Time) ([]*Post, error)
+	CreateComment(*Comment) error
+	GetComments(string, *time.Time) ([]*Comment, error)
 }
 
 type ds struct {

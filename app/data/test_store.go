@@ -29,6 +29,10 @@ type TestStore struct {
 	GetUsersPostsCallCount     int
 	TestGetUserFollows         func(string) ([]*Follow, error)
 	GetUserFollowsCallCount    int
+	TestCreateComment          func(*Comment) error
+	CreateCommentCallCount     int
+	TestGetComments            func(string, *time.Time) error
+	GetCommentsCallCount       int
 }
 
 func (t *TestStore) CreateUser(user *User) error {
@@ -102,4 +106,14 @@ func (t *TestStore) GetUsersPosts(ids []string, before *time.Time) ([]*Post, err
 func (t *TestStore) GetUserFollows(id string) ([]*Follow, error) {
 	t.GetUserFollowsCallCount += 1
 	return t.TestGetUserFollows(id)
+}
+
+func (t *TestStore) CreateComment(comment *Comment) error {
+	t.CreateCommentCallCount += 1
+	return t.TestCreateComment(comment)
+}
+
+func (t *TestStore) GetComments(postID string, before *time.Time) ([]*Comment, error) {
+	t.GetCommentsCallCount += 1
+	return t.GetComments(postID, before)
 }
