@@ -39,9 +39,7 @@ docker-push-worker:
 reset-db:
 	dropdb --if-exists social
 	createdb social
-	psql social -c 'CREATE EXTENSION citext'
-	psql social -c 'CREATE EXTENSION "uuid-ossp"'
-	go run cmd/migrate/main.go
+	psql -f dump.sql social
 
 migrate:
 	go run cmd/migrate/main.go

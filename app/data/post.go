@@ -19,7 +19,7 @@ type Post struct {
 	PostImages  []*PostImage
 	Images      []*Image `gorm:"many2many:post_images;"`
 
-	CommentCount int `gorm:"-"`
+	CommentCount int `gorm:"-:migration"`
 }
 
 func (s *ds) CreatePost(post *Post) error {
