@@ -3,12 +3,13 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import {Mutation, MutationCreatePostArgs, MutationSignedUploadUrlArgs} from "graphql/types";
+import PostTextField from "app/create_post/PostTextField";
+import {CreatePostInput, Mutation, MutationCreatePostArgs, MutationSignedUploadUrlArgs} from "graphql/types";
 import React, {useEffect, useState} from "react";
 
 const MAX_POST_LENGTH = 4096;
+const MAX_PROP_LENGTH = 255;
 
 const CREATE_POST = gql`
   mutation createPost($input: CreatePostInput!) {
@@ -35,26 +36,33 @@ const uploadFile = (url: string, imageFile: File) => {
 const CreatePost = () => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
-  const [postBody, setPostBody] = useState("");
-  const [bodyError, setBodyError] = useState("");
+  const [hasError, setHasError] = useState(false);
   const [postID, setPostID] = useState("");
-  const [uploadFileName, setUploadFileName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState<CreatePostInput>();
 
   useEffect(() => {
-    setUploadFileName(fileName ? `${fileName}?${crypto.randomUUID()}` : "");
+    setInput({
+      ...input,
+      images: [fileName ? `${fileName}?${crypto.randomUUID()}` : ""],
+    });
   }, [fileName]);
 
   const [createPost, {error: postError}] = useMutation<
     Mutation, MutationCreatePostArgs
   >(CREATE_POST, {
-    variables: {input: {body: postBody, images: [uploadFileName]}}
+    variables: {input}
   });
 
   const [signedUploadURL, {error: uploadError}] = useMutation<
     Mutation, MutationSignedUploadUrlArgs
   >(SIGNED_UPLOAD_URL, {
-    variables: {input: {fileName: uploadFileName, contentType: file ? file.type : ""}}
+    variables: {
+      input: {
+        fileName: input?.images.length ? input.images[0] : "",
+        contentType: file ? file.type : "",
+      }
+    }
   });
 
   const error = postError || uploadError;
@@ -78,23 +86,42 @@ const CreatePost = () => {
         {fileName &&
           <Typography>File chosen: {fileName}</Typography>
         }
-        <TextField
-          multiline
-          fullWidth
+        <PostTextField
           disabled={loading || postID !== ""}
-          label="body (optional)"
-          error={bodyError.length > 0}
-          helperText={bodyError}
-          value={postBody}
-          onChange={(e) => {
-            if (e.target.value.length > MAX_POST_LENGTH) {
-              setBodyError("too long, max 4096 characters");
-            } else if (bodyError.length) {
-              setBodyError("");
-            }
-            setPostBody(e.target.value);
-          }}
-        ></TextField>
+          maxLength={MAX_POST_LENGTH}
+          input={input}
+          setInput={setInput}
+          field="body"
+          label="caption"
+          setHasError={setHasError}
+        />
+        <PostTextField
+          disabled={loading || postID !== ""}
+          maxLength={MAX_PROP_LENGTH}
+          input={input}
+          setInput={setInput}
+          field="film"
+          label="film type"
+          setHasError={setHasError}
+        />
+        <PostTextField
+          disabled={loading || postID !== ""}
+          maxLength={MAX_PROP_LENGTH}
+          input={input}
+          setInput={setInput}
+          field="camera"
+          label="camera"
+          setHasError={setHasError}
+        />
+        <PostTextField
+          disabled={loading || postID !== ""}
+          maxLength={MAX_PROP_LENGTH}
+          input={input}
+          setInput={setInput}
+          field="lens"
+          label="lens"
+          setHasError={setHasError}
+        />
         {error &&
           <Alert severity="error">{error.message}</Alert>
         }
@@ -104,7 +131,7 @@ const CreatePost = () => {
         <Button
           fullWidth
           variant="contained"
-          disabled={!fileName || bodyError.length > 0 || loading || postID !== ""}
+          disabled={!fileName || hasError || loading || postID !== ""}
           component="label"
           onClick={(e) => {
             e.preventDefault();

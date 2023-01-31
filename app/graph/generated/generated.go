@@ -76,9 +76,12 @@ type ComplexityRoot struct {
 
 	Post struct {
 		Body         func(childComplexity int) int
+		Camera       func(childComplexity int) int
 		CommentCount func(childComplexity int) int
+		Film         func(childComplexity int) int
 		ID           func(childComplexity int) int
 		Images       func(childComplexity int) int
+		Lens         func(childComplexity int) int
 		PublishedAt  func(childComplexity int) int
 		User         func(childComplexity int) int
 	}
@@ -289,12 +292,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Post.Body(childComplexity), true
 
+	case "Post.camera":
+		if e.complexity.Post.Camera == nil {
+			break
+		}
+
+		return e.complexity.Post.Camera(childComplexity), true
+
 	case "Post.commentCount":
 		if e.complexity.Post.CommentCount == nil {
 			break
 		}
 
 		return e.complexity.Post.CommentCount(childComplexity), true
+
+	case "Post.film":
+		if e.complexity.Post.Film == nil {
+			break
+		}
+
+		return e.complexity.Post.Film(childComplexity), true
 
 	case "Post.id":
 		if e.complexity.Post.ID == nil {
@@ -309,6 +326,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Post.Images(childComplexity), true
+
+	case "Post.lens":
+		if e.complexity.Post.Lens == nil {
+			break
+		}
+
+		return e.complexity.Post.Lens(childComplexity), true
 
 	case "Post.publishedAt":
 		if e.complexity.Post.PublishedAt == nil {
@@ -517,6 +541,9 @@ type Post {
   id: String!
   user: User!
   body: String!
+  film: String!
+  camera: String!
+  lens: String!
   images: [Image!]!
   publishedAt: Time
   commentCount: Int!
@@ -530,6 +557,9 @@ type Image {
 
 input CreatePostInput {
   body: String!
+  film: String!
+  camera: String!
+  lens: String!
   images: [String!]!
 }
 
@@ -1617,6 +1647,12 @@ func (ec *executionContext) fieldContext_Mutation_createPost(ctx context.Context
 				return ec.fieldContext_Post_user(ctx, field)
 			case "body":
 				return ec.fieldContext_Post_body(ctx, field)
+			case "film":
+				return ec.fieldContext_Post_film(ctx, field)
+			case "camera":
+				return ec.fieldContext_Post_camera(ctx, field)
+			case "lens":
+				return ec.fieldContext_Post_lens(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
@@ -1824,6 +1860,138 @@ func (ec *executionContext) _Post_body(ctx context.Context, field graphql.Collec
 }
 
 func (ec *executionContext) fieldContext_Post_body(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Post_film(ctx context.Context, field graphql.CollectedField, obj *data.Post) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Post_film(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Film, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Post_film(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Post_camera(ctx context.Context, field graphql.CollectedField, obj *data.Post) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Post_camera(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Camera, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Post_camera(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Post",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Post_lens(ctx context.Context, field graphql.CollectedField, obj *data.Post) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Post_lens(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Lens, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Post_lens(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Post",
 		Field:      field,
@@ -2195,6 +2363,12 @@ func (ec *executionContext) fieldContext_Query_getPost(ctx context.Context, fiel
 				return ec.fieldContext_Post_user(ctx, field)
 			case "body":
 				return ec.fieldContext_Post_body(ctx, field)
+			case "film":
+				return ec.fieldContext_Post_film(ctx, field)
+			case "camera":
+				return ec.fieldContext_Post_camera(ctx, field)
+			case "lens":
+				return ec.fieldContext_Post_lens(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
@@ -2264,6 +2438,12 @@ func (ec *executionContext) fieldContext_Query_getPosts(ctx context.Context, fie
 				return ec.fieldContext_Post_user(ctx, field)
 			case "body":
 				return ec.fieldContext_Post_body(ctx, field)
+			case "film":
+				return ec.fieldContext_Post_film(ctx, field)
+			case "camera":
+				return ec.fieldContext_Post_camera(ctx, field)
+			case "lens":
+				return ec.fieldContext_Post_lens(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
@@ -2333,6 +2513,12 @@ func (ec *executionContext) fieldContext_Query_getNewPosts(ctx context.Context, 
 				return ec.fieldContext_Post_user(ctx, field)
 			case "body":
 				return ec.fieldContext_Post_body(ctx, field)
+			case "film":
+				return ec.fieldContext_Post_film(ctx, field)
+			case "camera":
+				return ec.fieldContext_Post_camera(ctx, field)
+			case "lens":
+				return ec.fieldContext_Post_lens(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
@@ -2402,6 +2588,12 @@ func (ec *executionContext) fieldContext_Query_getUserPosts(ctx context.Context,
 				return ec.fieldContext_Post_user(ctx, field)
 			case "body":
 				return ec.fieldContext_Post_body(ctx, field)
+			case "film":
+				return ec.fieldContext_Post_film(ctx, field)
+			case "camera":
+				return ec.fieldContext_Post_camera(ctx, field)
+			case "lens":
+				return ec.fieldContext_Post_lens(ctx, field)
 			case "images":
 				return ec.fieldContext_Post_images(ctx, field)
 			case "publishedAt":
@@ -4471,7 +4663,7 @@ func (ec *executionContext) unmarshalInputCreatePostInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"body", "images"}
+	fieldsInOrder := [...]string{"body", "film", "camera", "lens", "images"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4483,6 +4675,30 @@ func (ec *executionContext) unmarshalInputCreatePostInput(ctx context.Context, o
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("body"))
 			it.Body, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "film":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("film"))
+			it.Film, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "camera":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("camera"))
+			it.Camera, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "lens":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lens"))
+			it.Lens, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4856,6 +5072,27 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 		case "body":
 
 			out.Values[i] = ec._Post_body(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "film":
+
+			out.Values[i] = ec._Post_film(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "camera":
+
+			out.Values[i] = ec._Post_camera(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "lens":
+
+			out.Values[i] = ec._Post_lens(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

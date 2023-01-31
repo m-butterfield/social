@@ -34,6 +34,9 @@ func (r *mutationResolver) CreatePost(ctx context.Context, input model.CreatePos
 	post := &data.Post{
 		Body:   input.Body,
 		UserID: user.ID,
+		Camera: input.Camera,
+		Film:   input.Film,
+		Lens:   input.Lens,
 	}
 	if err = r.DS.CreatePost(post); err != nil {
 		return nil, internalError(err)

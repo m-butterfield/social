@@ -16,9 +16,11 @@ const PostItem = (props: PostProps) => {
   const {post} = props;
   const [showComments, setShowComments] = useState(false);
   const [numComments, setNumComments] = useState(post.commentCount);
+  // const [liked, setLiked] = useState(false);
   return <Box sx={{paddingBottom: 10}}>
     <Card sx={{paddingX: 4, paddingY: 4, borderRadius: 0, backgroundColor: "#303030"}}>
       <Stack direction="column" alignItems="flex-start" spacing={2}>
+        <Typography><Link href={`/${post.user.username}`}>{post.user.username}</Link></Typography>
         {
           post.images.map((image) => {
             return <img
@@ -29,7 +31,20 @@ const PostItem = (props: PostProps) => {
             />;
           })
         }
-        <Typography><Link href={`/${post.user.username}`}>{post.user.username}</Link>: {post.body}</Typography>
+        {/*<Typography>*/}
+        {/*  <Link*/}
+        {/*    component="button"*/}
+        {/*    // fontSize="1rem"*/}
+        {/*    underline="none"*/}
+        {/*    onClick={() => setLiked(!liked)}*/}
+        {/*  >*/}
+        {/*    {liked ? "▼" : "▲"} 101*/}
+        {/*  </Link>*/}
+        {/*</Typography>*/}
+        {post.body && <Typography>{post.body}</Typography>}
+        {post.film && <Typography variant="subtitle2">Film: {post.film}</Typography>}
+        {post.camera && <Typography variant="subtitle2">Camera: {post.camera}</Typography>}
+        {post.lens && <Typography variant="subtitle2">Lens: {post.lens}</Typography>}
         {showComments ?
           <>
             <Link

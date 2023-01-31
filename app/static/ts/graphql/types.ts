@@ -23,7 +23,10 @@ export type Comment = {
 
 export type CreatePostInput = {
   body: Scalars['String'];
+  camera: Scalars['String'];
+  film: Scalars['String'];
   images: Array<Scalars['String']>;
+  lens: Scalars['String'];
 };
 
 export type Follow = {
@@ -93,9 +96,12 @@ export type MutationUnFollowUserArgs = {
 export type Post = {
   __typename?: 'Post';
   body: Scalars['String'];
+  camera: Scalars['String'];
   commentCount: Scalars['Int'];
+  film: Scalars['String'];
   id: Scalars['String'];
   images: Array<Image>;
+  lens: Scalars['String'];
   publishedAt?: Maybe<Scalars['Time']>;
   user: User;
 };
