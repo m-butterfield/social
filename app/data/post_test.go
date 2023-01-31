@@ -41,6 +41,7 @@ func TestGetPost(t *testing.T) {
 	}
 	post := &Post{
 		UserID: user.ID,
+		User:   user,
 	}
 	if err = s.CreatePost(post); err != nil {
 		t.Fatal(err)
@@ -119,4 +120,33 @@ func TestGetUserPosts(t *testing.T) {
 
 	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Post{})
 	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&User{})
+}
+
+func TestUnpublishPost(t *testing.T) {
+	s, err := getDS()
+	if err != nil {
+		t.Fatal(err)
+	}
+	user := &User{Username: "testUser"}
+	if err = s.CreateUser(user); err != nil {
+		t.Fatal(err)
+	}
+	now := time.Now()
+	post := &Post{
+		PublishedAt: &now,
+		UserID:      user.ID,
+	}
+	if err = s.CreatePost(post); err != nil {
+		t.Fatal(err)
+	}
+
+	if err = s.UnpublishPost(post.ID); err != nil {
+		t.Fatal(err)
+	}
+	if post, err = s.GetPost(post.ID); err != nil {
+		t.Fatal(err)
+	}
+	assert.Nil(t, post.PublishedAt)
+
+	s.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&Post{})
 }

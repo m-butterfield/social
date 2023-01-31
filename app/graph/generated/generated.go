@@ -67,6 +67,7 @@ type ComplexityRoot struct {
 		CreateComment   func(childComplexity int, postID string, body string) int
 		CreatePost      func(childComplexity int, input model.CreatePostInput) int
 		CreateUser      func(childComplexity int, input model.UserCreds) int
+		DeletePost      func(childComplexity int, postID string) int
 		FollowUser      func(childComplexity int, username string) int
 		Login           func(childComplexity int, input model.UserCreds) int
 		Logout          func(childComplexity int) int
@@ -111,6 +112,7 @@ type MutationResolver interface {
 	Logout(ctx context.Context) (bool, error)
 	CreateComment(ctx context.Context, postID string, body string) (*data.Comment, error)
 	CreatePost(ctx context.Context, input model.CreatePostInput) (*data.Post, error)
+	DeletePost(ctx context.Context, postID string) (bool, error)
 	SignedUploadURL(ctx context.Context, input model.SignedUploadInput) (string, error)
 }
 type QueryResolver interface {
@@ -229,6 +231,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.UserCreds)), true
+
+	case "Mutation.deletePost":
+		if e.complexity.Mutation.DeletePost == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deletePost_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeletePost(childComplexity, args["postID"].(string)), true
 
 	case "Mutation.followUser":
 		if e.complexity.Mutation.FollowUser == nil {
@@ -565,6 +579,7 @@ input CreatePostInput {
 
 extend type Mutation {
   createPost(input: CreatePostInput!): Post!
+  deletePost(postID: String!): Boolean!
 }
 
 extend type Query {
@@ -673,6 +688,21 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deletePost_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["postID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postID"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["postID"] = arg0
 	return args, nil
 }
 
@@ -1671,6 +1701,61 @@ func (ec *executionContext) fieldContext_Mutation_createPost(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createPost_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deletePost(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deletePost(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeletePost(rctx, fc.Args["postID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deletePost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deletePost_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -5020,6 +5105,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createPost(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deletePost":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deletePost(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {

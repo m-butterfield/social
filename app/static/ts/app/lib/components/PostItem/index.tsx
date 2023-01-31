@@ -11,11 +11,13 @@ import {Post} from "graphql/types";
 import React, {useContext, useState} from "react";
 
 type PostProps = {
-  post: Post
+  post: Post;
+  posts: Post[];
+  setPosts: (v: Post[]) => void;
 }
 
 const PostItem = (props: PostProps) => {
-  const {post} = props;
+  const {post, posts, setPosts} = props;
   const {user} = useContext(AppContext);
   const [showComments, setShowComments] = useState(false);
   const [numComments, setNumComments] = useState(post.commentCount);
@@ -24,7 +26,7 @@ const PostItem = (props: PostProps) => {
       <Stack direction="column" alignItems="flex-start" spacing={2}>
         <Stack direction="row" justifyContent="space-between" width="100%">
           <Link href={`/${post.user.username}`}>{post.user.username}</Link>
-          {user && <DeletePostButton post={post} />}
+          {user && user.id === post.user.id && <DeletePostButton post={post} posts={posts} setPosts={setPosts} />}
         </Stack>
         {
           post.images.map((image) => {

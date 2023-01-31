@@ -19,11 +19,18 @@ type Post struct {
 	PostImages  []*PostImage
 	Images      []*Image `gorm:"many2many:post_images;"`
 
-	CommentCount int `gorm:"-:migration"`
+	CommentCount int `gorm:"->:migration"`
 }
 
 func (s *ds) CreatePost(post *Post) error {
 	if tx := s.db.Create(post); tx.Error != nil {
+		return tx.Error
+	}
+	return nil
+}
+
+func (s *ds) UnpublishPost(id string) error {
+	if tx := s.db.Model(&Post{ID: id}).Updates(map[string]interface{}{"published_at": nil}); tx.Error != nil {
 		return tx.Error
 	}
 	return nil
@@ -48,7 +55,9 @@ func (s *ds) PublishPost(id string, images []*Image) error {
 
 func (s *ds) GetPost(id string) (*Post, error) {
 	var post *Post
-	if tx := s.db.First(&post, "id = $1", id); tx.Error != nil {
+	if tx := s.db.
+		Preload("User").
+		First(&post, "id = $1", id); tx.Error != nil {
 		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}

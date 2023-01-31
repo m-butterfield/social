@@ -11,6 +11,7 @@ export const GET_USER_POSTS = gql`
         height
       }
       user {
+        id
         username
       }
       publishedAt
