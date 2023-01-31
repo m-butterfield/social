@@ -28,6 +28,7 @@ input CreatePostInput {
 
 extend type Mutation {
   createPost(input: CreatePostInput!): Post!
+  deletePost(postID: String!): Boolean!
 }
 
 extend type Query {

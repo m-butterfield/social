@@ -52,6 +52,32 @@ func (r *mutationResolver) CreatePost(ctx context.Context, input model.CreatePos
 	return post, nil
 }
 
+// DeletePost is the resolver for the deletePost field.
+func (r *mutationResolver) DeletePost(ctx context.Context, postID string) (bool, error) {
+	user, err := loggedInUser(ctx)
+	if err != nil {
+		return false, internalError(err)
+	}
+	if user == nil {
+		return false, unauthorizedError()
+	}
+	post, err := r.DS.GetPost(postID)
+	if err != nil {
+		return false, internalError(err)
+	}
+	if post == nil {
+		return false, errors.New("post not found")
+	}
+	if post.User.ID != user.ID {
+		return false, unauthorizedError()
+	}
+	err = r.DS.UnpublishPost(post.ID)
+	if err != nil {
+		return false, internalError(err)
+	}
+	return true, nil
+}
+
 // GetPost is the resolver for the getPost field.
 func (r *queryResolver) GetPost(ctx context.Context, id string) (*data.Post, error) {
 	user, err := loggedInUser(ctx)

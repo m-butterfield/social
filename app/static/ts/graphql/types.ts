@@ -50,6 +50,7 @@ export type Mutation = {
   createComment: Comment;
   createPost: Post;
   createUser: User;
+  deletePost: Scalars['Boolean'];
   followUser: Scalars['Boolean'];
   login: User;
   logout: Scalars['Boolean'];
@@ -71,6 +72,11 @@ export type MutationCreatePostArgs = {
 
 export type MutationCreateUserArgs = {
   input: UserCreds;
+};
+
+
+export type MutationDeletePostArgs = {
+  postID: Scalars['String'];
 };
 
 

@@ -93,6 +93,10 @@ func (t *TestStore) PublishPost(string, []*Image) error {
 	panic("should not be called")
 }
 
+func (t *TestStore) UnpublishPost(string) error {
+	panic("should not be called")
+}
+
 func (t *TestStore) GetUserPosts(id string, before *time.Time) ([]*Post, error) {
 	t.GetUserPostsCallCount += 1
 	return t.TestGetUserPosts(id, before)

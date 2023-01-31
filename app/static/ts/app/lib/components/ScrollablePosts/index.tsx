@@ -70,7 +70,7 @@ const ScrollablePosts = ({
       <Typography>{message}</Typography>
       :
       posts.map((post: Post) => {
-        return <PostItem key={post.id} post={post} />;
+        return <PostItem key={post.id} post={post} posts={posts} setPosts={setPosts} />;
       })
     }
     {refetching && <Typography>Loading more posts...</Typography>}

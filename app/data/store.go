@@ -46,6 +46,7 @@ type Store interface {
 	GetPost(string) (*Post, error)
 	GetOrCreateImage(string, int, int) (*Image, error)
 	PublishPost(string, []*Image) error
+	UnpublishPost(string) error
 	GetUserPosts(string, *time.Time) ([]*Post, error)
 	GetUsersPosts([]string, *time.Time) ([]*Post, error)
 	CreateComment(*Comment) error
