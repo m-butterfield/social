@@ -17,6 +17,9 @@ const GET_POSTS = gql`
       }
       publishedAt
       commentCount
+      film
+      camera
+      lens
     }
   }
 `;

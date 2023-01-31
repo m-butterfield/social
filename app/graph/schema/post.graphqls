@@ -4,6 +4,9 @@ type Post {
   id: String!
   user: User!
   body: String!
+  film: String!
+  camera: String!
+  lens: String!
   images: [Image!]!
   publishedAt: Time
   commentCount: Int!
@@ -17,6 +20,9 @@ type Image {
 
 input CreatePostInput {
   body: String!
+  film: String!
+  camera: String!
+  lens: String!
   images: [String!]!
 }
 

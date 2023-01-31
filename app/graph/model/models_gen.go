@@ -4,6 +4,9 @@ package model
 
 type CreatePostInput struct {
 	Body   string   `json:"body"`
+	Film   string   `json:"film"`
+	Camera string   `json:"camera"`
+	Lens   string   `json:"lens"`
 	Images []string `json:"images"`
 }
 

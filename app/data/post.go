@@ -7,15 +7,19 @@ import (
 )
 
 type Post struct {
-	ID           string `gorm:"type:uuid;default:uuid_generate_v4()"`
-	Body         string `json:"body"`
-	UserID       string `gorm:"not null" json:"-"`
-	User         *User
-	CreatedAt    time.Time `gorm:"not null;default:now()"`
-	PublishedAt  *time.Time
-	PostImages   []*PostImage
-	Images       []*Image `gorm:"many2many:post_images;"`
-	CommentCount int
+	ID          string `gorm:"type:uuid;default:uuid_generate_v4()"`
+	Body        string `json:"body"`
+	Film        string `json:"film"`
+	Camera      string `json:"camera"`
+	Lens        string `json:"lens"`
+	UserID      string `gorm:"not null" json:"-"`
+	User        *User
+	CreatedAt   time.Time `gorm:"not null;default:now()"`
+	PublishedAt *time.Time
+	PostImages  []*PostImage
+	Images      []*Image `gorm:"many2many:post_images;"`
+
+	CommentCount int `gorm:"-"`
 }
 
 func (s *ds) CreatePost(post *Post) error {
