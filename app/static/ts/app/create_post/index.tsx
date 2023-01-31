@@ -33,13 +33,21 @@ const uploadFile = (url: string, imageFile: File) => {
   });
 };
 
+const INITIAL_INPUT: CreatePostInput = {
+  body: "",
+  film: "",
+  camera: "",
+  lens: "",
+  images: [],
+};
+
 const CreatePost = () => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [hasError, setHasError] = useState(false);
   const [postID, setPostID] = useState("");
   const [loading, setLoading] = useState(false);
-  const [input, setInput] = useState<CreatePostInput>();
+  const [input, setInput] = useState<CreatePostInput>(INITIAL_INPUT);
 
   useEffect(() => {
     setInput({
